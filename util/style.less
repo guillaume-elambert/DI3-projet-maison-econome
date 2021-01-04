@@ -1,0 +1,204 @@
+body {
+    font-family: "Roboto", sans-serif;
+    margin: 0;
+    width: 100%;
+    background-color:#EEEEEE;
+    //background: linear-gradient(45deg, #ea4f4c 0%, #6d0019 100%);
+}
+
+.alert {
+    position: relative;
+    padding: .75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    margin-left: 10%;
+    width: 80%;
+}
+
+.alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+
+
+.red {
+    color: #ea4f4c;
+}
+
+#content {
+    width: 80%;
+    margin-left: 10%;
+}
+
+/*------ NAV BAR -----*/
+
+#navBar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    margin-bottom: 5%;
+    background-color: #222;
+    box-shadow: 0 5px 15px 0 rgba(0, 0, 0, 0.25);
+    color: white;
+    text-transform: uppercase;
+    overflow: hidden;
+
+    .logo a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: white;
+
+        img {
+            width: 75px;
+        }
+
+        #logoTitle {
+            margin-top: 3px;
+            font-weight: bold;
+        }
+    }
+
+    .navigation {
+        display: flex;
+        list-style-type: none;
+
+        li {
+            opacity: 1;
+            list-style-type: none;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .parent {
+            padding: 0 10px;
+            cursor: pointer;
+
+            .link {
+                position: relative;
+                display: flex;
+                align-items: center;
+                text-decoration: none;
+                transition: all 0.3s ease-in-out;
+                color: white;
+
+                &:hover {
+                    color: #ea4f4c;
+                }
+
+                .fa-minus {
+                    opacity: 0;
+                    transition: all 0.3s ease-in-out;
+                    position: absolute;
+                    left: -16px;
+                    top: 3px;
+                }
+
+                .fa-plus {
+                    opacity: 1;
+                    transition: all 0.3s ease-in-out;
+                }
+
+                .fas {
+                    color: #ea4f4c;
+                    margin: -2px 4px 0;
+                    font-size: 10px;
+                    transition: all 0.3s ease-in-out;
+                }
+            }
+        }
+
+        .subnavigation {
+            display: none;
+            list-style-type: none;
+            width: 500px;
+            position: absolute;
+            top: 40%;
+            left: 25%;
+            margin: auto;
+            transition: all 0.3s ease-in-out;
+            background-color: #222;
+
+            li a {
+                font-size: 17px;
+                padding: 0 5px;
+            }
+        }
+    }
+
+    .active.parent {
+        transform: translate(0, -15px);
+
+        .link {
+            font-size: 12px;
+
+            .fa-minus {
+                opacity: 1 !important;
+                font-size: 8px;
+            }
+
+            .fa-plus {
+                opacity: 0 !important;
+            }
+        }
+
+        .subnavigation {
+            display: flex;
+        }
+    }
+
+    .active#actionsUser {
+        .subnavigation {
+            transform: translate(-100px, 17px);
+        }
+    }
+
+    .active#services {
+        .subnavigation {
+            transform: translate(-290px, 17px);
+        }
+    }
+
+    .invisible {
+        opacity: 0 !important;
+        transform: translate(50px, 0);
+    }
+}
+
+.accueilTITLE {
+    font-size: 20px;
+    color: #222;
+    font-weight: bold;
+    background-color:#EEEEEE;
+}
+
+.accueilLIEN {
+    font-size: 20px;
+    color:red;
+    font-weight: bold;
+    background-color: #EEEEEE;  
+    cursor: pointer;
+}
+
+
+.a_propos{
+    font-size: 25px;
+    color:#222;
+    font-weight: bold;
+    background-color:#EEEEEE;
+}
+
+.a_propos_2{
+    font-size: 20px;
+    color: #222;
+    font-weight: bold;
+    background-color: #EEEEEE;
+}
