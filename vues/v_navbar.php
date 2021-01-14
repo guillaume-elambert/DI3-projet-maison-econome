@@ -1,7 +1,7 @@
 <nav id="navBar">
 
   <div class="logo">
-    <a href="<?php echo $base; ?>">
+    <a href="<?php echo HOME; ?>">
       <img src="assets/logo.png" alt="logo">
       <span id="logoTitle">Les P<span class="red">D</span>G</span>
     </a>
@@ -9,23 +9,45 @@
 
   <ul class="navigation">
 
-    <li class="parent"><a class="link" href="<?php echo $base; ?>">Accueil</a></li>
+    <li class="parent"><a class="link" href="<?php echo HOME; ?>">Accueil</a></li>
 
-    <li class="parent" id="actionsUser">
-      <a class="link" href="#"><i class="fas fa-minus"></i>Mon espace<i class="fas fa-plus"></i></a>
+    <li class="parent parentWithSubNav" id="actionsUser">
+      <a class="link"><i class="fas fa-minus"></i>
+        <?php
+        if (isset($_SESSION['user'])) {
+          $infos = $pdo->getUserInfos($_SESSION['user']);
+          echo $infos['prenomUtilisateur'] . " " . $infos['nomUtilisateur'];
+        } else {
+          echo "Mon espace";
+        }
+        ?>
+        <i class="fas fa-plus"></i></a>
       <ul class="subnavigation">
-        <?php if (!isset($_SESSION["username"])) { ?>
-          <li><a class="link" href="<?php echo $base; ?>?uc=utilisateur&action=connexion">Connexion</a></li>
-          <li><a class="link" href="<?php echo $base; ?>?uc=utilisateur&action=inscription">Inscription</a></li>
-        <?php } else { ?>
-
+        <?php
+        if (isset($_SESSION['user'])) {
+        ?>
+          <li><a class="link" href="<?php echo HOME; ?>?uc=utilisateur&action=mes-infos">Mon espace</a></li>
+          <li><a class="link" href="<?php echo HOME; ?>?uc=utilisateur&action=connexion">Déconnexion</a></li>
+        <?php
+        } else {
+        ?>
+          <li><a class="link" href="<?php echo HOME; ?>?uc=utilisateur&action=connexion">Connexion</a></li>
+          <li><a class="link" href="<?php echo HOME; ?>?uc=utilisateur&action=inscription">Inscription</a></li>
         <?php } ?>
 
       </ul>
     </li>
 
-    <li class="parent"><a class="link" href="<?php echo $base; ?>?uc=info">À propos des développeurs</a></li>
+    <li class="parent parentWithSubNav" id="actionsAPropos">
+      <a class="link">
+        <i class="fas fa-minus"></i>À propos<i class="fas fa-plus"></i>
+      </a>
 
+      <ul class="subnavigation">
+        <li><a class="link" href="<?php echo HOME; ?>?uc=info&action=equipe">Les devellopeurs</a></li>
+        <li><a class="link" href="<?php echo HOME; ?>?uc=info&action=avancement">Le site</a></li>
+      </ul>
+    </li>
   </ul>
 
 </nav>

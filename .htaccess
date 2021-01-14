@@ -1,0 +1,24 @@
+SetEnvIfNoCase X-Requested-With XMLHttpRequest ajax
+
+# N'entre que si la requête n'est pas effectuée par ajax
+<If "%{HTTP:X-Requested-With} != 'XMLHttpRequest'">
+
+    <IfModule mod_rewrite.c>
+
+        RewriteEngine On
+        RewriteBase /projet-bdd-3a
+
+        # Redirige les pages non existantes sur index.php
+        RewriteCond %{REQUEST_FILENAME} !-f 
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule . . [NC,L,R]
+
+        # Redirige sur index.php si tentative d'accès au code
+        RewriteCond %{REQUEST_URI} !^(.*)((index.php(\?.*)?)|/)$
+        RewriteRule !^(.*)\.(gif|jpg|png|jpeg|svg|css|less|js|swf)$ . [NC,L,R]
+
+        # Retire le "index.php" des url avec requête GET
+        RewriteRule ^(.*)(index.php(\?.*)?)$ $1$3 [NC,L,R]
+
+    </IfModule>
+</If>

@@ -1,7 +1,14 @@
     </div>
 </body>
 
-<script type="text/javascript" src="<?php echo $base; ?>util/script.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/less.js/4.0.0/less.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo HOME; ?>script/script.js"></script>
+<?php 
+if(isset($javascript) && !empty($javascript)){
+    foreach($javascript as $script){
+        echo "<script type='text/javascript' src='$script'></script>";
+    }
+}
+?>
 
 </html>
