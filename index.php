@@ -37,11 +37,28 @@ switch($uc)
 		break;
 	
 
-	case "test": 
+	/*case "test": 
 		//$pdo->insertRueVille();
 		//$pdo->insertRootUser();
 		//var_dump(password_hash("root", PASSWORD_DEFAULT));
-		break;
+
+		
+		$degreSecurite = $pdo->getDegreSecurite();
+		$typeAppart = $pdo->getTypeAppartement();
+
+
+		$immeubles = $pdo->getImmeuble();
+		
+		foreach($immeubles as $unImmeuble){
+			$rand = rand(1,20);
+			for($i=0;$i<=$rand;++$i){
+				$idDegreSecurite = $degreSecurite[rand(0,count($degreSecurite)-1)]['idDegreSecurite'];
+				$idTypeAppart = $typeAppart[rand(0,count($typeAppart)-1)]['idTypeAppart'];
+				$pdo->insertAppartement($unImmeuble['idImmeuble'], $idDegreSecurite, $idTypeAppart);
+			}
+		}
+
+		break;*/
 
 	
 

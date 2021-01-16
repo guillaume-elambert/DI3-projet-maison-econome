@@ -2,8 +2,19 @@
 if (isset($_GET['action'])) {
 	$action = $_GET['action'];
 } else {
-	$action = "connexion";
+	$action = "mes-infos";
 }
+
+
+$actionsImmeubles = array(
+	'Mettre fin'
+		=> array(
+			'class' 	=>	'action fas fa-times red',
+			'onclick'	=> 	'ajaxDateFin(this.closest(\'tr\'));',
+			'title'	=>	'Déclarer mettre fin à la possession'
+		)
+);
+
 
 switch ($action) {
 
@@ -27,7 +38,7 @@ switch ($action) {
 
 			//Entrée : la fonction connexionUtilisateur n'a pas retournée d'erreur
 			if (isset($_SESSION['user'])) {
-				$redirect	= HOME;
+				$redirect	= "?uc=$uc&action=mes-infos";
 				$success[]	= "Vous êtes bien connectez !";
 			}
 			//Entrée : il y a eu une erreur lors de la connexion
@@ -67,7 +78,7 @@ switch ($action) {
 				$dateNaiss = $_SESSION['dateNaiss'];
 				unset($_SESSION['dateNaiss']);
 			} else $dateNaiss = '';
-			
+
 			if (isset($_SESSION['debutLocation'])) {
 				$debutLocation = $_SESSION['debutLocation'];
 				unset($_SESSION['debutLocation']);
@@ -99,79 +110,108 @@ switch ($action) {
 		break;
 
 	case 'confirmerInscription':
-		$erreurs = array();
+
+		//Entrée : l'utilisateur est connecté
+		//	=> il ne doit pas avoir accès à cette page : redirection
 		if (isset($_SESSION['user'])) {
 			$messages[] = "Vous êtes connectez, pas besoin de créer un compte !";
-		} else {
-			if (isset($_POST['nom'])) {
-				$nom 		 	= $_POST['nom'];
-				$prenom 	 	= $_POST['prenom'];
-				$dateNaiss		= date("Y-m-d", strtotime($_POST['dateNaiss']));
-				$debutLocation 	= date("Y-m-d", strtotime($_POST['debutLocation']));
-				$mdp 		 	= $_POST['mdp'];
-				$mail 		 	= $_POST['mail'];
-				$ville 		 	= $_POST['ville'];
-				$rue 		 	= $_POST['rue'];
-				$immeuble 	 	= $_POST['immeuble'];
-				$appartement 	= $_POST['appartement'];
+			$redirect = HOME;
+		} else if (isset($_POST['mail'])) {
 
-				$nom = addslashes($nom);
-				$prenom = addslashes($prenom);
-				$mail = addslashes($mail);
-			}
+			$erreurs = array();
+			$setSessionValues = false;
 
-			$erreurs = getErreursSaisieInscription($nom, $prenom, $mail, $mdp);
+
+			$nom 		 	= $_POST['nom'];
+			$prenom 	 	= $_POST['prenom'];
+			$dateNaiss		= date("Y-m-d", strtotime($_POST['dateNaiss']));
+			$debutLocation 	= date("Y-m-d", strtotime($_POST['debutLocation']));
+			$mdp 			= password_hash($_POST['mdp'], PASSWORD_DEFAULT);;
+			$mail 		 	= $_POST['mail'];
+			$ville 		 	= $_POST['ville'];
+			$rue 		 	= $_POST['rue'];
+			$immeuble 	 	= $_POST['immeuble'];
+			$appartement 	= $_POST['appartement'];
+			$situationUser	= $_POST['situationUser'];
+
+			$nom = addslashes($nom);
+			$prenom = addslashes($prenom);
+			$mail = addslashes($mail);
+
+
+			$erreurs = getErreursSaisieInscription($nom, $prenom, $mail, $mdp, $ville, $rue, $immeuble, $appartement, $situationUser);
 
 			//Entrée : il n'y a pas eu d'erreurs de saisie
 			if (empty($erreurs)) {
 
 				//Entrée : il n'existe aucun compte avec l'adresse utilisée
 				if (!$pdo->getUserInfos($mail)) {
-					if ($pdo->creerUser($mail, $mdp, $nom, $prenom, $dateNaiss, $debutLocation, $immeuble, $appartement)) {
+					$erreurInsertionUser = $pdo->creerUser($mail, $mdp, $nom, $prenom, $dateNaiss);
+					
+					if (empty($erreurInsertionUser)) {
 						$_SESSION['user'] = $mail;
+						$erreursInsertionLocPoss = false;
 
+						if (strcmp($situationUser, "locataire") == 0) {
+							$erreursInsertionLocPoss = $pdo->nouvelleLocation($mail, $debutLocation, $immeuble, $appartement);
+						} else {
+							$erreursInsertionLocPoss = $pdo->nouvellePossession($mail, $debutLocation, $immeuble);
+						}
+
+						if(!empty($erreurInsertionUser)){
+							$erreurs = array_merge($erreurs, $erreursInsertionLocPoss);
+						}
+
+						$redirect 	= "?uc=$uc&action=mes-infos";
 						$messages[] = "Vous êtes bien inscris et connectez. A l'avenir votre identifiant sera : " . $_POST['mail'] . " !";
-						$redirect 	= HOME;
+					} else {
+						$setSessionValues = true;
+
+						$erreurs 	= array_merge($erreurs, $erreurInsertionUser);
+						$redirect 	= "?uc=$uc&action=inscription"; 
 					}
 				} else {
-					$_SESSION['nom'] 		 	= $nom;
-					$_SESSION['prenom'] 	 	= $prenom;
-					$_SESSION['dateNaiss']		= $dateNaiss;
-					$_SESSION['debutLocation'] 	= $debutLocation;
-					$_SESSION['mdp'] 		 	= $mdp;
-					$_SESSION['mail'] 		 	= $mail;
-					$_SESSION['ville'] 		 	= $ville;
-					$_SESSION['rue'] 		 	= $rue;
-					$_SESSION['immeuble'] 	 	= $immeuble;
-					$_SESSION['appartement'] 	= $appartement;
-					
+					$setSessionValues = true;
+
 					$erreurs[] = 'Cette adresse mel est déjà utilisée...';
 					$redirect = "?uc=$uc&action=inscription";
 				}
+
 			} else {
-				$_SESSION['nom'] 		 	= $nom;
-				$_SESSION['prenom'] 	 	= $prenom;
-				$_SESSION['dateNaiss']		= $dateNaiss;
-				$_SESSION['debutLocation'] 	= $debutLocation;
-				$_SESSION['mdp'] 		 	= $mdp;
-				$_SESSION['mail'] 		 	= $mail;
-				$_SESSION['ville'] 		 	= $ville;
-				$_SESSION['rue'] 		 	= $rue;
-				$_SESSION['immeuble'] 	 	= $immeuble;
-				$_SESSION['appartement'] 	= $appartement;
+				$setSessionValues = true;
 
 				$erreurs[] = "Les champs n'ont pas été correctement saisis";
 				$redirect = "?uc=$uc&action=inscription";
 			}
+
+			if ($setSessionValues) {
+				$_SESSION['nom'] 		 	= $nom;
+				$_SESSION['prenom'] 	 	= $prenom;
+				$_SESSION['dateNaiss']		= $dateNaiss;
+				$_SESSION['debutLocation'] 	= $debutLocation;
+				$_SESSION['mail'] 		 	= $mail;
+				$_SESSION['ville'] 		 	= $ville;
+				$_SESSION['rue'] 		 	= $rue;
+			}
+		} else{
+			$messages[] = "Vous remplir le formulaire";
+			$redirect = "?uc=$uc&action=inscription";
 		}
+
 		break;
 
 	case "mes-infos":
-		include("vues/v_mesinfos.php");
+		if(isset($_SESSION['user'])){
+			include("vues/v_mesinfos.php");
+			$javascript[] = HOME . 'script/actionsImmeubles.js';
+		} else {
+			$messages[] = "Vous devez être connectez pour accéder à cette page.";
+			$redirect	= "?uc=$uc&action=connexion";
+		}
 		break;
 
 	default:
-		$redirect = "?uc=$uc&action=connexion";
+		$redirect = "?uc=$uc&action=mes-infos";
 		break;
 }
 

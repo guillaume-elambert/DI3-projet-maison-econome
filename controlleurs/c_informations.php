@@ -11,7 +11,7 @@ switch ($action) {
     case "avancement":
         include("vues/v_apropos2.php");
         break;
-
+        
     default:
         $redirect = "?uc=$uc&action=equipe";
         break;

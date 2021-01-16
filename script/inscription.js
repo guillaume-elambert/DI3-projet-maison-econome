@@ -17,12 +17,25 @@ var selectImmeuble = $('#selectImmeuble');
 var selectAppartement = $('#selectAppartement');
 
 //Champs à prendre en compte avant la validatio
-var fieldNotSearchField = $(".champ:not(#ville, #rue, #immeuble, appartement) input");
+var fieldNotSearchField = $(".champ:not(#ville, #rue, #immeuble, #appartement, #situation) input");
 
-var champs = $.merge($.merge([], fieldNotSearchField), $("select"));
+var estProprietaire = false;
+var radioSituation = $("#situation");
+
+var tableAppartement = $("#appartement");
+
+var champs = $.merge($.merge([], fieldNotSearchField), $("select, input[type=radio]"));
+
+var totalChamps = 11;
+var nbChampsAttendus = 11;
 
 var validBtn = $(":submit");
 var form = $('#formInscription');
+
+//timer identifier
+var typingTimer = null;
+//time in ms, 5 second for example
+var doneTypingInterval = 500;
 
 /*-------------------------------------------------------*/
 /*-------------- VERIF FORM OK POUR ENVOI ---------------*/
@@ -35,14 +48,14 @@ var form = $('#formInscription');
  *  => Sinon on débloque le formulaire
  */
 function changeFormState() {
-
     var isOk = true;
     var stateBtn = validBtn.attr("disabled");
-    var selected = $("option:selected");
-
-    if(selected.length == 4){
+    var notAppartement = estProprietaire ? ":not(#appartement)" : "";
+    var selected = $.merge($.merge([], fieldNotSearchField), $("tr"+notAppartement+" option:selected, input[type=radio]:checked"));
+    console.log(selected.length + " / " + nbChampsAttendus);
+    if (selected.length == nbChampsAttendus) {
         //Parcours de tous les champs de saisie
-        $.each($.merge($.merge([], fieldNotSearchField),selected), function (i, obj) {
+        $.each($.merge($.merge([], fieldNotSearchField), selected), function (i, obj) {
             if (!$(obj).val() || $(obj).val() == "") {
                 isOk = false;
                 return;
@@ -67,6 +80,23 @@ function changeFormState() {
     }
 }
 
+
+$(radioSituation).change(function () {
+    if (estProprietaire) {
+        tableAppartement.removeClass("invisible");
+        selectAppartement.attr('required', true);
+        estProprietaire = false;
+        nbChampsAttendus = totalChamps;
+    } else {
+        tableAppartement.addClass("invisible");
+        selectAppartement.removeAttr('required');
+        estProprietaire = true;
+        --nbChampsAttendus;
+    }
+    changeFormState();
+
+})
+
 //Detection changements sur champs du formulaire
 //Si l'un des champs est vide : on bloque le formulaire
 $(champs).change(function () {
@@ -79,8 +109,7 @@ $(champs).change(function () {
 /*---------------- AJAX RECHERCHE VILLE -----------------*/
 /*-------------------------------------------------------*/
 
-rechercheVille.bind("change paste", function () {
-
+function ajaxVille() {
     var value = rechercheVille.val();
 
     //Entrée : le champ de recherche est n'est pas vide
@@ -118,12 +147,25 @@ rechercheVille.bind("change paste", function () {
             }
         });
     }
+}
+
+/*
+rechercheVille.bind("change paste", function () {
+    ajaxVille();
+});
+*/
+
+rechercheVille.bind("keyup paste", function () {
+    clearTimeout(typingTimer);
+    if (this.value) {
+        typingTimer = setTimeout(ajaxVille, doneTypingInterval);
+    }
 });
 
 selectVille.bind("change", function () {
     if ($(this).val() != "") {
         rechercheRue.removeAttr("disabled");
-        ajaxRues(true);
+        ajaxRues();
     } else {
         resetRue();
     }
@@ -135,57 +177,62 @@ selectVille.bind("change", function () {
 /*----------------- AJAX RECHERCHE RUE ------------------*/
 /*-------------------------------------------------------*/
 
-function ajaxRues(skipEmptyReasearch) {
+function ajaxRues() {
 
     var value = rechercheRue.val();
     var valueVille = selectVille.find("option:selected").val();
 
+    resetImmeuble();
 
-    if (skipEmptyReasearch || value != "") {
-        resetImmeuble();
-
-        $.ajax({
-            url: 'ajax/chercherRueDansVille.php',
-            type: 'POST',
-            dataType: 'text',
-            data: "ville=" + valueVille + "&recherche=" + value,
-            success: function (data) {
-                try {
-                    var output = JSON.parse(data);
-                } catch (e) {
-                    console.log(data);
-                    selectRue.attr('disabled', true);
-                    alert("Output is not valid JSON: " + data);
-                    return;
-                }
-
-                selectRue.empty();
-                selectRue.append(new Option('--- Veuillez choisir une rue ---', "", false, false));
-
-                $.each(output, function (i, obj) {
-                    selectRue.append(new Option(obj.nomRue, obj.idRue, false, false));
-                });
-
-                selectRue.removeAttr('disabled');
-            },
-            error: function (request, error) {
+    $.ajax({
+        url: 'ajax/chercherRueDansVille.php',
+        type: 'POST',
+        dataType: 'text',
+        data: "ville=" + valueVille + "&recherche=" + value,
+        success: function (data) {
+            try {
+                var output = JSON.parse(data);
+            } catch (e) {
+                console.log(data);
                 selectRue.attr('disabled', true);
-                alert("AJAX Call Error: " + error);
+                alert("Output is not valid JSON: " + data);
+                return;
             }
-        });
-    }
+
+            selectRue.empty();
+            selectRue.append(new Option('--- Veuillez choisir une rue ---', "", false, false));
+
+            $.each(output, function (i, obj) {
+                selectRue.append(new Option(obj.nomRue, obj.idRue, false, false));
+            });
+
+            selectRue.removeAttr('disabled');
+        },
+        error: function (request, error) {
+            selectRue.attr('disabled', true);
+            alert("AJAX Call Error: " + error);
+        }
+    });
 
 };
 
-
+/*
 rechercheRue.bind("change paste", function () {
-    ajaxRues(false);
+    ajaxRues();
+});
+*/
+
+rechercheRue.bind("keyup paste", function () {
+    clearTimeout(typingTimer);
+    if (this.value) {
+        typingTimer = setTimeout(ajaxRues, doneTypingInterval);
+    }
 });
 
 selectRue.bind("change", function () {
     if ($(this).val() != "") {
         rechercheImmeuble.removeAttr("disabled");
-        ajaxImmeubles(true);
+        ajaxImmeubles();
     } else {
         resetImmeuble();
     }
@@ -206,50 +253,56 @@ function resetRue() {
 /*--------------- AJAX RECHERCHE IMMEUBLE ---------------*/
 /*-------------------------------------------------------*/
 
-function ajaxImmeubles(skipEmptyReasearch) {
+function ajaxImmeubles() {
 
     var value = rechercheImmeuble.val();
     var valueRue = selectRue.find("option:selected").val();
 
     changeFormState();
-    if (skipEmptyReasearch || value != "") {
-        resetAppartement();
+    resetAppartement();
 
-        $.ajax({
-            url: 'ajax/chercherImmeubleDansRue.php',
-            type: 'POST',
-            dataType: 'text',
-            data: "rue=" + valueRue + "&recherche=" + value,
-            success: function (data) {
-                try {
-                    var output = JSON.parse(data);
-                } catch (e) {
-                    console.log(data);
-                    selectImmeuble.attr('disabled', true);
-                    alert("Output is not valid JSON: " + data);
-                    return;
-                }
-
-                selectImmeuble.empty();
-                selectImmeuble.append(new Option('--- Veuillez choisir un immeuble ---', "", false, false));
-
-                $.each(output, function (i, obj) {
-                    selectImmeuble.append(new Option("Numéro " + obj.numeroImmeuble, obj.idImmeuble, false, false));
-                });
-
-                selectImmeuble.removeAttr('disabled');
-            },
-            error: function (request, error) {
+    $.ajax({
+        url: 'ajax/chercherImmeubleDansRue.php',
+        type: 'POST',
+        dataType: 'text',
+        data: "rue=" + valueRue + "&recherche=" + value,
+        success: function (data) {
+            try {
+                var output = JSON.parse(data);
+            } catch (e) {
+                console.log(data);
                 selectImmeuble.attr('disabled', true);
-                alert("AJAX Call Error: " + error);
+                alert("Output is not valid JSON: " + data);
+                return;
             }
-        });
-    }
 
+            selectImmeuble.empty();
+            selectImmeuble.append(new Option('--- Veuillez choisir un immeuble ---', "", false, false));
+
+            $.each(output, function (i, obj) {
+                selectImmeuble.append(new Option("Numéro " + obj.numeroImmeuble, obj.idImmeuble, false, false));
+            });
+
+            selectImmeuble.removeAttr('disabled');
+        },
+        error: function (request, error) {
+            selectImmeuble.attr('disabled', true);
+            alert("AJAX Call Error: " + error);
+        }
+    });
 };
 
+/*
 rechercheImmeuble.bind("change paste", function () {
-    ajaxImmeubles(false);
+    ajaxImmeubles();
+});
+*/
+
+rechercheImmeuble.bind("keyup paste", function () {
+    clearTimeout(typingTimer);
+    if (this.value) {
+        typingTimer = setTimeout(ajaxImmeubles, doneTypingInterval);
+    }
 });
 
 selectImmeuble.bind("change", function () {

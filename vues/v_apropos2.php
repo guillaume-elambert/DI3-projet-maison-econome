@@ -7,8 +7,8 @@
 <p class="a_propos_2">page à propos des developpeurs :
 <progress value="100" max="100">100 %</progress> ✔<br/></p>
 <p class="a_propos_2">inscription :
-<progress value="50" max="100">50 %</progress> 50%<br/></p>
+<progress value="100" max="100">100 %</progress> ✔<br/></p>
 <p class="a_propos_2">connexion :
 <progress value="100" max="100">100 %</progress> ✔<br/></p>
 <p class="a_propos_2">mon profil :
-<progress value="20" max="100">20 %</progress> 20%<br/></p>
+<progress value="35" max="100">35 %</progress> 35%<br/></p>

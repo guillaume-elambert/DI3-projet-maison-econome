@@ -42,13 +42,19 @@ body {
     color: #ea4f4c;
 }
 
+
+.invisible {
+    display: none;
+}
+
 :disabled {
-    cursor : not-allowed;
+    cursor: not-allowed;
 }
 
 #content {
-    width : 80%;
-    margin : auto;
+    width: 80%;
+    margin: auto;
+    margin-bottom: 5%;
 }
 
 #formInscription,
@@ -56,7 +62,7 @@ body {
 
     table {
         margin: auto;
-        border-spacing: 0 15px;
+        border-spacing: 15px 15px;
     }
 
     .champ {
@@ -243,6 +249,7 @@ body {
     .active .subnavigation {
         transform: translate(-100px, 17px);
     }
+
     /*.active#actionsUser {
         .subnavigation {
             transform: translate(-100px, 17px);
@@ -251,12 +258,14 @@ body {
 
     .active#actionsAPropos {
         transform: translate(-20px, -15px);
+
         .subnavigation {
             transform: translate(-120px, 17px);
         }
     }
 
     .invisible {
+        display: block;
         opacity: 0 !important;
         transform: translate(50px, 0);
     }
@@ -277,11 +286,11 @@ body {
     cursor: pointer;
 }
 
-.acceuilMAIN{
+.acceuilMAIN {
     font-size: 20px;
     color: #222;
     font-weight: bold;
-    background-color: #EEEEEE; 
+    background-color: #EEEEEE;
 }
 
 
@@ -300,5 +309,71 @@ body {
 }
 
 .flotte {
-    float:left;
+    float: left;
+}
+
+.niceLookingTable {
+    min-width: 500px;
+    border-collapse: collapse;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+
+    th,
+    td {
+        padding: 15px;
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    thead {
+        th {
+            background-color: #222;
+            text-align: center;
+            color: white;
+        }
+    }
+
+    tbody {
+        tr {
+            &:hover {
+                background-color: rgba(34, 34, 34, 0.1);
+            }
+        }
+
+        td {
+            position: relative;
+
+            &:hover {
+                &:before {
+                    content: "";
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    top: -9999px;
+                    bottom: -9999px;
+                    background-color: rgba(34, 34, 34, 0.1);
+                    z-index: -1;
+                }
+            }
+        }
+    }
+}
+
+#consomationEnergie {
+    margin: auto;
+    border-spacing: 0 0;
+
+    td,
+    th {
+
+        border: 2px double black;
+    }
+}
+
+.tdActions {
+    display : flex;
+    justify-content: space-around;
+}
+
+.action {
+    cursor : pointer;
 }

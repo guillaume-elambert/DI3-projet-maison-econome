@@ -163,14 +163,12 @@ class PdoProjet3A
 	 * @param string $nom Nom du nouvel utilisateur
 	 * @param string $prenom Prenom du nouvel utilisateur
 	 * @param date $dateNaiss Date de naissance du nouvel utilisateur
-	 * @param date $debutLocation Date de début de location de l'appartement du nouvel utilisateur
-	 * @param int $immeuble Identifiant de l'immeuble du nouvel utilisateur
-	 * @param int $appartement Identifiant de l'appartement du nouvel utilisateur (relatif à l'immeuble)
+	 * @return array $lesErreurs l'ensemble des potentielles erreurs lors de l'inscription
 	 */
-	public function creerUser($mail, $mdp, $nom, $prenom, $dateNaiss, $debutLocation, $immeuble, $appartement)
+	public function creerUser($mail, $mdp, $nom, $prenom, $dateNaiss)
 	{
 		$lesErreurs = array();
-		$mdp = password_hash($mdp, PASSWORD_DEFAULT);
+		$msg = "Une erreur s'est produite lors de la création de votre compte...";
 
 		if (PdoProjet3A::$monPdo) {
 			$sql = "INSERT INTO utilisateur 
@@ -180,21 +178,72 @@ class PdoProjet3A
 
 			try {
 				$req = PdoProjet3A::$monPdo->prepare($sql);
-				$req->execute();
-
-				$sql = "INSERT INTO louer
-				(mail   , idImmeuble, idAppartement, debutLocation) VALUES
-				('$mail', $immeuble, $appartement , '$debutLocation');";
-
-				try {
-					$req = PdoProjet3A::$monPdo->prepare($sql);
-					$req->execute();
-				} catch (PDOException $exceptionLouer) {
-					$lesErreurs[] = "Une erreur s'est produite lors l'initialisation de votre docimicle, rendez-vous dans vous espace client.";
+				if (!$req->execute()) {
+					$lesErreurs[] = $msg;
 				}
 			} catch (PDOException $exceptionUtilisateur) {
-				$lesErreurs[] = "Une erreur s'est produite lors de la création de votre compte...";
+				$lesErreurs[] = $msg;
 			}
+		}
+
+		return $lesErreurs;
+	}
+
+	/**
+	 * Fonction qui ajoute une location à un utilisateur
+	 * 
+	 * @param string $mail Addresse mail de l'utilisateur
+	 * @param date $debutLocation Date de début de location de l'appartement de l'utilisateur
+	 * @param int $immeuble Identifiant de l'immeuble de l'utilisateur
+	 * @param int $appartement Identifiant de l'appartement de l'utilisateur (relatif à l'immeuble)
+	 * @return array $lesErreurs l'ensemble des potentielles erreurs lors de l'insertion des données
+	 */
+	public function nouvelleLocation($mail, $debutLocation, $immeuble, $appartement)
+	{
+		$lesErreurs = array();
+		$msg = "Une erreur s'est produite lors l'initialisation de votre docimicle, rendez-vous dans vous espace client.";
+
+		$sql = "INSERT INTO louer
+		(mail   , idImmeuble, idAppartement, debutLocation) VALUES
+		('$mail', $immeuble, $appartement , '$debutLocation');";
+
+		try {
+			$req = PdoProjet3A::$monPdo->prepare($sql);
+			if (!$req->execute()) {
+				$lesErreurs[] = $msg;
+			}
+		} catch (PDOException $exceptionLouer) {
+			$lesErreurs[] = $msg;
+		}
+
+		return $lesErreurs;
+	}
+
+
+	/**
+	 * Fonction qui ajoute une possession à un utilisateur
+	 * 
+	 * @param string $mail Addresse mail de l'utilisateur
+	 * @param date $debutPossession Date de début de possession de l'appartement de l'utilisateur
+	 * @param int $immeuble Identifiant de l'immeuble de l'utilisateur
+	 * @return array $lesErreurs l'ensemble des potentielles erreurs lors de l'insertion des données
+	 */
+	public function nouvellePossession($mail, $debutPossession, $immeuble)
+	{
+		$lesErreurs = array();
+		$msg = "Une erreur s'est produite lors l'initialisation de votre docimicle, rendez-vous dans vous espace client.";
+
+		$sql = "INSERT INTO posseder
+		(mail   , idImmeuble, debutPossession) VALUES
+		('$mail', $immeuble , '$debutPossession');";
+
+		try {
+			$req = PdoProjet3A::$monPdo->prepare($sql);
+			if (!$req->execute()) {
+				$lesErreurs[] = $msg;
+			}
+		} catch (PDOException $exceptionLouer) {
+			$lesErreurs[] = $msg;
 		}
 
 		return $lesErreurs;
@@ -221,9 +270,11 @@ class PdoProjet3A
 	public function chercherVille($recherche)
 	{
 		$toReturn = 1;
+		//ma super ville 95000
+		$recherche = explode(" ", $recherche);
 
 		if (PdoProjet3A::$monPdo) {
-			$sql = "SELECT * FROM ville
+			$sql = "SELECT idVille, nomVille, cp, v.codeDep FROM ville v
 			NATURAL JOIN departement 
 			NATURAL JOIN region
 			WHERE ";
@@ -322,46 +373,294 @@ class PdoProjet3A
 	}
 
 
-	public function insertRueVille()
-	{
-		$infosVilles = PdoProjet3A::$monPdoProjet3A->getVilles();
-		$sql = "INSERT INTO rue (`nomRue`,`idVille`) VALUES";
-		$i = 0;
-		foreach ($infosVilles as $ville) {
-			if ($i != 0) {
-				$sql .= ", ";
-			} else {
-				++$i;
-			}
-			$sql .= ' ("Une super rue de ' . $ville['nomVille'] . '","' . $ville['idVille'] . '")';
-		}
-		$sql .= ";";
-		
-		PdoProjet3A::$monPdo->prepare($sql)->execute();
-	}
-
-	public function insertRootUser()
-	{
-		$sql = "INSERT INTO utilisateur (`mail`,`motDePasse`, `idRole`, `dateCreation`) VALUES ('root@root.fr','" . password_hash("root", PASSWORD_DEFAULT) . "', 1, CURRENT_DATE);";
-		PdoProjet3A::$monPdo->prepare($sql)->execute();
-	}
-
-	public function test()
-	{
-		$reponse = PdoProjet3A::$monPdo->query('SELECT * FROM ville');
-
-		$donnees = $reponse->fetchAll();
-		$reponse->closeCursor(); // Termine le traitement de la requête
-		return $donnees;
-	}
-
-
 	public function getUserInfos($mail)
 	{
+		$donneesUser = "Erreur...";
 		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM utilisateur WHERE mail = '$mail'");
 
-		$donneesUser = $userInfo->fetch();
-		$userInfo->closeCursor();
+		if ($userInfo) {
+			$donneesUser = $userInfo->fetch();
+			$userInfo->closeCursor();
+		}
 		return $donneesUser;
+	}
+
+
+	public function getUserPossession($mail)
+	{
+		$donneesUser = "Erreur...";
+
+		$sql = "SELECT * FROM posseder
+		NATURAL JOIN immeuble
+		NATURAL JOIN rue
+		NATURAL JOIN ville
+		WHERE mail = '$mail' 
+		AND finPossession IS NULL;";
+
+		$userInfo = PdoProjet3A::$monPdo->query($sql);
+
+		if ($userInfo) {
+			$donneesUser = $userInfo->fetchAll();
+			$userInfo->closeCursor();
+		}
+		return $donneesUser;
+	}
+
+
+	public function getUserLocInfos($mail)
+	{
+		$donneesUser = "Erreur...";
+		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM louer WHERE mail = '$mail' AND finLocation IS NULL");
+
+		if ($userInfo) {
+			$donneesUser = $userInfo->fetch();
+			$userInfo->closeCursor();
+		}
+		return $donneesUser;
+	}
+
+
+	public function getInfosImmeuble($idImmeuble)
+	{
+		$donneesUser = "Erreur...";
+		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM immeuble WHERE idImmeuble = '$idImmeuble'");
+
+		if ($userInfo) {
+			$donneesUser = $userInfo->fetch();
+			$userInfo->closeCursor();
+		}
+		return $donneesUser;
+	}
+
+
+	public function getRueInfos($rue)
+	{
+		$donneesUser = "Erreur...";
+		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM rue WHERE idRue = '$rue'");
+
+		if ($userInfo) {
+			$donneesUser = $userInfo->fetch();
+			$userInfo->closeCursor();
+		}
+		return $donneesUser;
+	}
+
+
+	public function getVilleInfos($ville)
+	{
+		$donneesUser = "Erreur...";
+		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM ville WHERE idVille = '$ville'");
+
+		if ($userInfo) {
+			$donneesUser = $userInfo->fetch();
+			$userInfo->closeCursor();
+		}
+		return $donneesUser;
+	}
+
+	public function insertImmeuble($numImmeuble, $idRue)
+	{
+		$res = 1;
+		$msg = "Une erreur s'est produite...";
+
+		$sql = "INSERT INTO immeuble (numeroImmeuble, idRue) VALUES ($numImmeuble, $idRue);";
+
+		try {
+			$statement = PdoProjet3A::$monPdo->prepare($sql);
+
+			if (!$statement->execute()) {
+				$res = 1;
+			}
+		} catch (PDOException $e) {
+			$res = 1;
+		}
+
+		return $res;
+	}
+
+
+	public function insertAppartement($idImmeuble, $degreSecurite, $idTypeAppart)
+	{
+		$res = 1;
+		$msg = "Une erreur s'est produite...";
+
+		$sql = "INSERT INTO appartement (idImmeuble, idDegreSecurite, idTypeAppart) VALUES ($idImmeuble, $degreSecurite, $idTypeAppart);";
+		echo $sql;
+		try {
+			$statement = PdoProjet3A::$monPdo->prepare($sql);
+
+			if (!$statement->execute()) {
+				$res = 1;
+			}
+		} catch (PDOException $e) {
+			$res = 1;
+		}
+
+		return $res;
+	}
+
+	public function getDegreSecurite()
+	{
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM degresecurite");
+
+		if ($req) {
+			$res = $req->fetchAll();
+			$req->closeCursor();
+		}
+
+		return $res;
+	}
+
+
+	public function getTypeAppartement()
+	{
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM typeappartement");
+
+		if ($req) {
+			$res = $req->fetchAll();
+			$req->closeCursor();
+		}
+
+		return $res;
+	}
+
+	public function getImmeuble()
+	{
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM immeuble");
+
+		if ($req) {
+			$res = $req->fetchAll();
+			$req->closeCursor();
+		}
+
+		return $res;
+	}
+
+	public function getPieceInfos($immeuble, $appartement)
+	{
+		$donneesUser = "Erreur...";
+		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM piece WHERE idAppartement = '$appartement' AND idImmeuble=$immeuble");
+
+		if ($userInfo) {
+			$donneesUser = $userInfo->fetchAll();
+			$userInfo->closeCursor();
+		}
+		return $donneesUser;
+	}
+
+	public function getApptInfos($immeuble, $appartement)
+	{
+		$donneesUser = "Erreur...";
+		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM appartement WHERE idAppartement = '$appartement' AND idImmeuble=$immeuble");
+
+		if ($userInfo) {
+			$donneesUser = $userInfo->fetch();
+			$userInfo->closeCursor();
+		}
+		return $donneesUser;
+	}
+
+
+	public function getAppareilInfos($immeuble, $appartement)
+	{
+		$donneesUser = "Erreur...";
+		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM appareil WHERE idAppartement = '$appartement' AND idImmeuble=$immeuble");
+
+		if ($userInfo) {
+			$donneesUser = $userInfo->fetchAll();
+			$userInfo->closeCursor();
+		}
+		return $donneesUser;
+	}
+
+
+	public function getConsoInfos($appareil)
+	{
+		$donneesUser = "Erreur...";
+		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM consommer NATURAL JOIN typeenergie NATURAL JOIN substance_energie WHERE idTypeAppareil = $appareil");
+
+		if ($userInfo) {
+			$donneesUser = $userInfo->fetchAll();
+			$userInfo->closeCursor();
+		}
+		return $donneesUser;
+	}
+
+	public function getConsoAppart($idAppartement)
+	{
+		$sql = "SELECT se.libelle, SUM(c.consommationHoraire) AS 'consommation' FROM appartement
+		NATURAL JOIN piece
+		NATURAL JOIN appareil
+		NATURAL JOIN typeappareil
+		NATURAL JOIN consommer c
+		NATURAL JOIN typeenergie
+		NATURAL JOIN substance_energie se
+		WHERE etat = 1
+		AND idAppartement = 1
+		GROUP BY libelle;";
+
+		$donneesUser = array();
+		$userInfo = PdoProjet3A::$monPdo->query($sql);
+
+		if ($userInfo) {
+			$donneesUser = $userInfo->fetchAll();
+			$userInfo->closeCursor();
+		}
+
+		return $donneesUser;
+	}
+
+	/**
+	 * Fonction qui vérifie si un immeuble appartient bien à un utilisateur
+	 * @param string $mailUtilisateur Mail de l'utilisateur
+	 * @param int $idAppartement Identifiant de l'appartement
+	 * @return boolean $toReturn : true si l'immeuble appartient à l'utilisateur, false sinon
+	 */
+	public function checkUserPossedeImmeuble($mailUtilisateur, $idImmeuble)
+	{
+		$sql = "SELECT * FROM posseder
+		WHERE mail = '$mailUtilisateur'
+		AND idImmeuble = $idImmeuble
+		AND finPossession IS NULL;";
+
+		$toReturn = false;
+		$req = PdoProjet3A::$monPdo->query($sql);
+
+		if ($req) {
+			if (!empty($req->fetch())) {
+				$toReturn = true;
+			}
+		}
+
+		return $toReturn;
+	}
+
+	/**
+	 * Fonction qui modifie la date de fin de possession d'un immeuble 
+	 * appartiennant à un utilisateur
+	 * 
+	 * @param string $mailUtilisateur Mail de l'utilisateur
+	 * @param int $idAppartement Identifiant de l'appartement
+	 * @return boolean $toReturn : true si l'immeuble appartient à l'utilisateur, false sinon
+	 */
+	public function setFinPossession($mailUtilisateur, $idImmeuble)
+	{
+		$sql = "UPDATE posseder
+		SET finPossession = CURRENT_DATE
+		WHERE mail = '$mailUtilisateur'
+		AND idImmeuble = $idImmeuble
+		AND finPossession IS NULL;";
+
+		$toReturn = false;
+		$statement = PdoProjet3A::$monPdo->prepare($sql);
+
+		if($statement->execute()){
+			$toReturn = true;
+		}
+
+		return $toReturn;
 	}
 }
