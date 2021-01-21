@@ -26,7 +26,7 @@
         <?php
         if (isset($_SESSION['user'])) {
         ?>
-          <li><a class="link" href="<?php echo HOME; ?>?uc=utilisateur&action=mes-infos">Mon espace</a></li>
+          <li><a class="link" href="<?php echo HOME; ?>?uc=espace&action=dashboard">Mon espace</a></li>
           <li><a class="link" href="<?php echo HOME; ?>?uc=utilisateur&action=connexion">Déconnexion</a></li>
         <?php
         } else {

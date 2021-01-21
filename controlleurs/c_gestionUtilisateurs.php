@@ -2,18 +2,8 @@
 if (isset($_GET['action'])) {
 	$action = $_GET['action'];
 } else {
-	$action = "mes-infos";
+	$action = "connexion";
 }
-
-
-$actionsImmeubles = array(
-	'Mettre fin'
-		=> array(
-			'class' 	=>	'action fas fa-times red',
-			'onclick'	=> 	'ajaxDateFin(this.closest(\'tr\'));',
-			'title'	=>	'Déclarer mettre fin à la possession'
-		)
-);
 
 
 switch ($action) {
@@ -38,7 +28,7 @@ switch ($action) {
 
 			//Entrée : la fonction connexionUtilisateur n'a pas retournée d'erreur
 			if (isset($_SESSION['user'])) {
-				$redirect	= "?uc=$uc&action=mes-infos";
+				$redirect	= "?uc=espace&action=dashboard";
 				$success[]	= "Vous êtes bien connectez !";
 			}
 			//Entrée : il y a eu une erreur lors de la connexion
@@ -99,13 +89,8 @@ switch ($action) {
 				unset($_SESSION['ville']);
 			} else $ville = '';
 
-			if (isset($_SESSION['cp'])) {
-				$cp = $_SESSION['cp'];
-				unset($_SESSION['cp']);
-			} else $cp = '';
-
 			include("vues/v_inscription.php");
-			$javascript[] = HOME . 'script/inscription.js';
+			$javascript[] = HOME . 'script/formLocPoss.js';
 		}
 		break;
 
@@ -126,7 +111,8 @@ switch ($action) {
 			$prenom 	 	= $_POST['prenom'];
 			$dateNaiss		= date("Y-m-d", strtotime($_POST['dateNaiss']));
 			$debutLocation 	= date("Y-m-d", strtotime($_POST['debutLocation']));
-			$mdp 			= password_hash($_POST['mdp'], PASSWORD_DEFAULT);;
+			$mdp 			= $_POST['mdp'];
+			$verifMdp		= $_POST['verifMdp'];
 			$mail 		 	= $_POST['mail'];
 			$ville 		 	= $_POST['ville'];
 			$rue 		 	= $_POST['rue'];
@@ -139,15 +125,17 @@ switch ($action) {
 			$mail = addslashes($mail);
 
 
-			$erreurs = getErreursSaisieInscription($nom, $prenom, $mail, $mdp, $ville, $rue, $immeuble, $appartement, $situationUser);
+			$erreurs = getErreursSaisieInscription($nom, $prenom, $mail, $mdp, $verifMdp, $ville, $rue, $immeuble, $appartement, $situationUser, $debutLocation);
 
 			//Entrée : il n'y a pas eu d'erreurs de saisie
 			if (empty($erreurs)) {
 
 				//Entrée : il n'existe aucun compte avec l'adresse utilisée
 				if (!$pdo->getUserInfos($mail)) {
+					$mdp = password_hash($mdp, PASSWORD_DEFAULT);
+
 					$erreurInsertionUser = $pdo->creerUser($mail, $mdp, $nom, $prenom, $dateNaiss);
-					
+
 					if (empty($erreurInsertionUser)) {
 						$_SESSION['user'] = $mail;
 						$erreursInsertionLocPoss = false;
@@ -158,17 +146,17 @@ switch ($action) {
 							$erreursInsertionLocPoss = $pdo->nouvellePossession($mail, $debutLocation, $immeuble);
 						}
 
-						if(!empty($erreurInsertionUser)){
+						if (!empty($erreurInsertionUser)) {
 							$erreurs = array_merge($erreurs, $erreursInsertionLocPoss);
 						}
 
-						$redirect 	= "?uc=$uc&action=mes-infos";
+						$redirect 	= "?uc=espace&action=dashboard";
 						$messages[] = "Vous êtes bien inscris et connectez. A l'avenir votre identifiant sera : " . $_POST['mail'] . " !";
 					} else {
 						$setSessionValues = true;
 
 						$erreurs 	= array_merge($erreurs, $erreurInsertionUser);
-						$redirect 	= "?uc=$uc&action=inscription"; 
+						$redirect 	= "?uc=$uc&action=inscription";
 					}
 				} else {
 					$setSessionValues = true;
@@ -176,7 +164,6 @@ switch ($action) {
 					$erreurs[] = 'Cette adresse mel est déjà utilisée...';
 					$redirect = "?uc=$uc&action=inscription";
 				}
-
 			} else {
 				$setSessionValues = true;
 
@@ -193,36 +180,14 @@ switch ($action) {
 				$_SESSION['ville'] 		 	= $ville;
 				$_SESSION['rue'] 		 	= $rue;
 			}
-		} else{
-			$messages[] = "Vous remplir le formulaire";
+		} else {
+			$messages[] = "Vous devez remplir le formulaire";
 			$redirect = "?uc=$uc&action=inscription";
 		}
 
 		break;
 
-	case "mes-infos":
-		if(isset($_SESSION['user'])){
-			include("vues/v_mesinfos.php");
-			$javascript[] = HOME . 'script/actionsImmeubles.js';
-		} else {
-			$messages[] = "Vous devez être connectez pour accéder à cette page.";
-			$redirect	= "?uc=$uc&action=connexion";
-		}
-		break;
-
 	default:
-		$redirect = "?uc=$uc&action=mes-infos";
+		$redirect = "?uc=$uc&action=connexion";
 		break;
-}
-
-if (isset($success)) {
-	$_SESSION['success'] = $success;
-}
-
-if (isset($erreurs)) {
-	$_SESSION['erreurs'] = $erreurs;
-}
-
-if (isset($messages)) {
-	$_SESSION['messages'] = $messages;
 }

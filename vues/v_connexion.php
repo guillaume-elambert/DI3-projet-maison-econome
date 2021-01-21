@@ -1,23 +1,25 @@
-<form method="POST" id="formConnexion" action="?uc=utilisateur&action=connexion">
+<form method="POST" id="formConnexion" action="?uc=<?php echo $uc; ?>&action=connexion">
     <fieldset>
-        <legend>Connexion</legend>
+        <legend>
+            <h3>Connexion</h3>
+        </legend>
         <table>
             <tbody>
                 <tr class="champ">
                     <td>
-                        <label for="mail">Mail <span class="red">*</span></label>
+                        Mail <span class="red">*</span>
                     </td>
                     <td>
-                        <input id="mail" type="text" name="mail" value="<?php echo $mail; ?>" size="50" maxlength="50" required>
+                        <input id="mail" type="text" name="mail" value="<?php echo $mail; ?>" maxlength="50" required>
                     </td>
                 </tr>
 
                 <tr class="champ">
                     <td>
-                        <label for="mdp">Mot de passe <span class="red">*</span></label>
+                        Mot de passe <span class="red">*</span>
                     </td>
                     <td>
-                        <input id="mdp" type="password" name="mdp" size="50" maxlength="50" required>
+                        <input id="mdp" type="password" name="mdp" maxlength="255" required>
                     </td>
                 </tr>
 
@@ -32,4 +34,4 @@
     </fieldset>
 </form>
 
-<br/><a href="?uc=utilisateur&action=inscription">Pas encore membre ? Inscrivez-vous ici !</a>
+<br /><a href="?uc=<?php echo $uc; ?>&action=inscription">Pas encore membre ? Inscrivez-vous ici !</a>

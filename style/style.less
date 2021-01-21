@@ -57,21 +57,34 @@ body {
     margin-bottom: 5%;
 }
 
-#formInscription,
-#formConnexion {
+/*#formInscription,
+#formConnexion,
+#formAjoutLocPoss*/
+form,
+.sameAsForm {
 
     table {
+        min-width: 50%;
         margin: auto;
         border-spacing: 15px 15px;
     }
 
     .champ {
 
+        h4 {
+            margin: 0;
+        }
+
+        td:nth-child(2n) {
+            width: 75%;
+        }
+
         select,
         input {
             width: -webkit-fill-available;
         }
     }
+
 }
 
 /*--- LOADING SCREEN ---*/
@@ -326,7 +339,7 @@ body {
 
     thead {
         th {
-            background-color: #222;
+            background-color: rgba(34, 34, 34, 0.9);
             text-align: center;
             color: white;
         }
@@ -369,11 +382,95 @@ body {
     }
 }
 
-.tdActions {
-    display : flex;
+.divActions {
+    display: flex;
     justify-content: space-around;
 }
 
 .action {
-    cursor : pointer;
+    cursor: pointer;
+}
+
+.dashboard {
+    width: 80%;
+    margin: auto;
+    margin-top: 10%;
+
+    td {
+        width: 50%;
+
+        .styledLink {
+            margin: 1em;
+            width: 85%;
+        }
+    }
+}
+
+
+.styledLink {
+    cursor: pointer;
+    display: inline-block;
+    border-radius: 3px;
+    background-color: rgba(34, 34, 34, 0.9);
+    border: none;
+    padding: 1em;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+}
+
+.styledFieldSet {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+table tr:not(:first-child) .styledFieldSet {
+    margin-top: 3em;
+}
+
+fieldset h3 {
+    margin: 0;
+}
+
+#divRechercheUtilisateur {
+    width: 30%;
+    margin-top: 3%;
+    margin-bottom: 3%;
+    /*position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);*/
+}
+
+.search {
+    width: 100%;
+    position: relative;
+    display: flex;
+
+    .searchTerm {
+        width: 100%;
+        border: 3px solid rgba(34, 34, 34, 0.9);
+        border-right: none;
+        padding: 5px;
+        border-radius: 5px 0 0 5px;
+        outline: none;
+        color: rgba(34, 34, 34, 0.6);
+    }
+
+    .searchTerm:focus {
+        color: rgba(34, 34, 34, 0.9);
+    }
+
+    .searchButton {
+        width: 40px;
+        height: 36px;
+        border: 1px solid rgba(34, 34, 34, 0.9);
+        background: rgba(34, 34, 34, 0.9);
+        text-align: center;
+        color: #fff;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+        font-size: 20px;
+    }
 }

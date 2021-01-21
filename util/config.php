@@ -5,7 +5,7 @@
 define( "HOME", "http://localhost:8080/projet-bdd-3a/" );
 
 /** Nom de la base de données */
-define( "DB_NAME", "3a_di_projet" );
+define( "DB_NAME", "di_3a_projet" );
 
 /** Nom d"utilisateur BDD */
 define( "DB_USER", "projet_bdd_3a" );

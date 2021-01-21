@@ -16,25 +16,31 @@ var selectImmeuble = $('#selectImmeuble');
 //Liste déroulante pour l'appartement
 var selectAppartement = $('#selectAppartement');
 
-//Champs à prendre en compte avant la validatio
+//Champs à prendre en compte avant la validation (on ne prend pas en compte les champs de recherche)
 var fieldNotSearchField = $(".champ:not(#ville, #rue, #immeuble, #appartement, #situation) input");
 
+//Liste de tous les champs que l'utilisateur doit saisir
+var champs = $.merge($.merge([], fieldNotSearchField), $("select, input[type=radio]"));
+
 var estProprietaire = false;
-var radioSituation = $("#situation");
+var radioLocataire = $("#locataire");
+var radioProprietaire = $("#proprietaire");
 
 var tableAppartement = $("#appartement");
 
-var champs = $.merge($.merge([], fieldNotSearchField), $("select, input[type=radio]"));
-
-var totalChamps = 11;
-var nbChampsAttendus = 11;
+//Nombre de champs total (-1 car sinon on compte les 2 radios)
+var totalChamps = champs.length - 1;
+var nbChampsAttendus = totalChamps;
+/*
+totalChamps = window.totalChamps;
+nbChampsAttendus = window.nbChampsAttendus;*/
 
 var validBtn = $(":submit");
-var form = $('#formInscription');
+var form = $('form');
 
 //timer identifier
 var typingTimer = null;
-//time in ms, 5 second for example
+//time in ms
 var doneTypingInterval = 500;
 
 /*-------------------------------------------------------*/
@@ -50,9 +56,16 @@ var doneTypingInterval = 500;
 function changeFormState() {
     var isOk = true;
     var stateBtn = validBtn.attr("disabled");
+
+    //Si estProprietaire est à true => on ne doit pas prendre en compte le champ de saisie de l'appartement
     var notAppartement = estProprietaire ? ":not(#appartement)" : "";
-    var selected = $.merge($.merge([], fieldNotSearchField), $("tr"+notAppartement+" option:selected, input[type=radio]:checked"));
-    console.log(selected.length + " / " + nbChampsAttendus);
+
+    //Ensemble des champs qui doivent être remplis
+    var selected = $.merge($.merge([], fieldNotSearchField), $("tr" + notAppartement + " option:selected, input[type=radio]:checked"));
+
+
+    //Entrée : on a bien le nombre de champs attendus
+    //  => On vérifie que les champs ne soient pas vide
     if (selected.length == nbChampsAttendus) {
         //Parcours de tous les champs de saisie
         $.each($.merge($.merge([], fieldNotSearchField), selected), function (i, obj) {
@@ -62,6 +75,7 @@ function changeFormState() {
             }
         });
     } else isOk = false;
+
 
     //Entrée : le formulaire est valide
     //      ET le bouton de validation est désactivé
@@ -80,24 +94,39 @@ function changeFormState() {
     }
 }
 
+//Si l'utilisateur se défini comme locataire on fait en sorte
+//que le champs de saisie de l'appartement apparraisse  et 
+//soit pris en compte dans la validation du formulaire
+$(radioLocataire).change(function () {
+    tableAppartement.removeClass("invisible");
+    selectAppartement.attr('required', true);
+    estProprietaire = false;
+    nbChampsAttendus = totalChamps;
 
-$(radioSituation).change(function () {
-    if (estProprietaire) {
-        tableAppartement.removeClass("invisible");
-        selectAppartement.attr('required', true);
-        estProprietaire = false;
-        nbChampsAttendus = totalChamps;
-    } else {
-        tableAppartement.addClass("invisible");
-        selectAppartement.removeAttr('required');
-        estProprietaire = true;
-        --nbChampsAttendus;
+    if (!rechercheImmeuble.attr("disabled") || rechercheImmeuble.attr("disabled") == false) {
+        ajaxImmeubles();
     }
+
     changeFormState();
+});
 
-})
+//Si l'utilisateur se défini comme propriétaire on fait en sorte
+//que le champs de saisie de l'appartement n'apparraisse pas et 
+//ne soit pas pris en compte dans la validation du formulaire
+$(radioProprietaire).change(function () {
+    tableAppartement.addClass("invisible");
+    selectAppartement.removeAttr('required');
+    estProprietaire = true;
+    --nbChampsAttendus;
 
-//Detection changements sur champs du formulaire
+    if (!rechercheImmeuble.attr("disabled") || rechercheImmeuble.attr("disabled") == false) {
+        ajaxImmeubles();
+    }
+
+    changeFormState();
+});
+
+//Detection changements sur les champs du formulaire
 //Si l'un des champs est vide : on bloque le formulaire
 $(champs).change(function () {
     changeFormState();
@@ -149,12 +178,9 @@ function ajaxVille() {
     }
 }
 
-/*
-rechercheVille.bind("change paste", function () {
-    ajaxVille();
-});
-*/
-
+//Lors de la saisie du champ de recherche de la ville
+//on attend doneTypingInterval ms avant d'appeler
+//la fonction ajax de recherche de la ville
 rechercheVille.bind("keyup paste", function () {
     clearTimeout(typingTimer);
     if (this.value) {
@@ -162,6 +188,8 @@ rechercheVille.bind("keyup paste", function () {
     }
 });
 
+//Lors de la séléction d'une ville, on met à jour
+//les champs qui dépendent de la ville
 selectVille.bind("change", function () {
     if ($(this).val() != "") {
         rechercheRue.removeAttr("disabled");
@@ -202,10 +230,12 @@ function ajaxRues() {
             selectRue.empty();
             selectRue.append(new Option('--- Veuillez choisir une rue ---', "", false, false));
 
+            //On ajoute tous les résultats de l'appel à la fonction AJAX dans la liste déroulante
             $.each(output, function (i, obj) {
                 selectRue.append(new Option(obj.nomRue, obj.idRue, false, false));
             });
 
+            //On rend possible la séléction de la rue
             selectRue.removeAttr('disabled');
         },
         error: function (request, error) {
@@ -216,12 +246,9 @@ function ajaxRues() {
 
 };
 
-/*
-rechercheRue.bind("change paste", function () {
-    ajaxRues();
-});
-*/
-
+//Lors de la saisie du champ de recherche de la rue
+//on attend doneTypingInterval ms avant d'appeler
+//la fonction ajax de recherche de la rue
 rechercheRue.bind("keyup paste", function () {
     clearTimeout(typingTimer);
     if (this.value) {
@@ -229,6 +256,8 @@ rechercheRue.bind("keyup paste", function () {
     }
 });
 
+//Lors de la séléction d'une rue, on met à jour
+//les champs qui dépendent de la rue
 selectRue.bind("change", function () {
     if ($(this).val() != "") {
         rechercheImmeuble.removeAttr("disabled");
@@ -238,7 +267,10 @@ selectRue.bind("change", function () {
     }
 });
 
-
+/**
+ * Fonction qui désactive et qui vide les champs
+ *  de recherche et de séléction de la rue
+ */
 function resetRue() {
     rechercheRue.attr("disabled", true);
     rechercheRue.val("");
@@ -257,12 +289,17 @@ function ajaxImmeubles() {
 
     var value = rechercheImmeuble.val();
     var valueRue = selectRue.find("option:selected").val();
-
-    changeFormState();
+    var url;
     resetAppartement();
 
+    if (estProprietaire) {
+        url = 'ajax/chercherImmeublesLibresDansRue.php';
+    } else {
+        url = 'ajax/chercherImmeubleDansRue.php';
+    }
+
     $.ajax({
-        url: 'ajax/chercherImmeubleDansRue.php',
+        url: url,
         type: 'POST',
         dataType: 'text',
         data: "rue=" + valueRue + "&recherche=" + value,
@@ -279,10 +316,12 @@ function ajaxImmeubles() {
             selectImmeuble.empty();
             selectImmeuble.append(new Option('--- Veuillez choisir un immeuble ---', "", false, false));
 
+            //On ajoute tous les résultats de l'appel à la fonction AJAX dans la liste déroulante
             $.each(output, function (i, obj) {
                 selectImmeuble.append(new Option("Numéro " + obj.numeroImmeuble, obj.idImmeuble, false, false));
             });
 
+            //On rend possible la séléction de l'immeuble
             selectImmeuble.removeAttr('disabled');
         },
         error: function (request, error) {
@@ -292,12 +331,10 @@ function ajaxImmeubles() {
     });
 };
 
-/*
-rechercheImmeuble.bind("change paste", function () {
-    ajaxImmeubles();
-});
-*/
 
+//Lors de la saisie du champ de recherche de l'immeuble
+//on attend doneTypingInterval ms avant d'appeler
+//la fonction ajax de recherche de l'immeuble
 rechercheImmeuble.bind("keyup paste", function () {
     clearTimeout(typingTimer);
     if (this.value) {
@@ -305,16 +342,23 @@ rechercheImmeuble.bind("keyup paste", function () {
     }
 });
 
+//Lors de la séléction d'un immeuble, on met à jour
+//les champs qui dépendent de l'immeuble
 selectImmeuble.bind("change", function () {
     if ($(this).val() != "") {
         selectImmeuble.removeAttr("disabled");
-        ajaxAppartements();
+        if (!estProprietaire) {
+            ajaxAppartements();
+        }
     } else {
         resetAppartement();
     }
 });
 
-
+/**
+ * Fonction qui désactive et qui vide les champs
+ *  de recherche et de séléction de l'immeuble
+ */
 function resetImmeuble() {
     rechercheImmeuble.attr("disabled", true);
     rechercheImmeuble.val("");
@@ -334,7 +378,7 @@ function ajaxAppartements() {
     var valueImmeuble = selectImmeuble.find("option:selected").val();
 
     $.ajax({
-        url: 'ajax/listerAppartementsDansImmeuble.php',
+        url: 'ajax/listerAppartementsLibresDansImmeuble.php',
         type: 'POST',
         dataType: 'text',
         data: "immeuble=" + valueImmeuble,
@@ -351,10 +395,12 @@ function ajaxAppartements() {
             selectAppartement.empty();
             selectAppartement.append(new Option('--- Veuillez choisir un appartement ---', "", false, false));
 
+            //On ajoute tous les résultats de l'appel à la fonction AJAX dans la liste déroulante
             $.each(output, function (i, obj) {
                 selectAppartement.append(new Option("Numéro " + obj.idAppartement, obj.idAppartement, false, false));
             });
 
+            //On rend possible la séléction de l'appartement
             selectAppartement.removeAttr('disabled');
         },
         error: function (request, error) {
@@ -365,12 +411,18 @@ function ajaxAppartements() {
 
 };
 
+/**
+ * Fonction qui désactive et qui vide le champs de séléction de l'appartement
+ */
 function resetAppartement() {
     selectAppartement.attr("disabled", true);
     selectAppartement.empty();
     changeFormState();
 }
 
+//Lors de la séléction d'un appartement, on met à jour
+//l'etat du formulaire si sa valeur n'est pas le champs
+//par défaut
 $(selectAppartement).bind("change", function () {
     if ($(this).val() != "") {
         changeFormState();

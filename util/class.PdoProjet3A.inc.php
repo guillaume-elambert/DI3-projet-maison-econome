@@ -121,7 +121,7 @@ class PdoProjet3A
 		$lesErreurs = array();
 
 		if (PdoProjet3A::$monPdo) {
-			$req = PdoProjet3A::$monPdo->prepare("SELECT * FROM utilisateur WHERE mail='$mail';");
+			$req = PdoProjet3A::$monPdo->prepare("SELECT * FROM utilisateur NATURAL JOIN role WHERE mail='$mail';");
 			$req->execute();
 			$lesErreurs = array();
 
@@ -132,11 +132,11 @@ class PdoProjet3A
 				//L'utilisateur existe
 				if ($userInfo) {
 					$mdpBDD = $userInfo['motDePasse'];
-					$role = $userInfo['idRole'];
+					$role = $userInfo['libelleRole'];
 
 					//Le mot de passe correspond au mot de passe haché dans la BDD
 					if (password_verify($mdp, $mdpBDD)) {
-						if ($role == 1) {
+						if (strcmp($role, 'admin') == 0) {
 							$_SESSION['admin'] = true;
 						}
 						$_SESSION['user'] = $mail;
@@ -173,8 +173,13 @@ class PdoProjet3A
 		if (PdoProjet3A::$monPdo) {
 			$sql = "INSERT INTO utilisateur 
 			(mail    , nomUtilisateur, prenomUtilisateur, dateNaissance, motDePasse, dateCreation, etat, idRole) VALUES
-			('$mail' , '$nom'		 , '$prenom'		, '$dateNaiss' , '$mdp'    , CURRENT_DATE, 1   , 2     );";
+			('$mail' , '$nom'		 , '$prenom'		, '$dateNaiss' , '$mdp'    , CURRENT_DATE, 1   , (
+				SELECT idRole 
+				FROM role
+				WHERE libelleRole = 'user'
+			));";
 
+			echo $sql;
 
 			try {
 				$req = PdoProjet3A::$monPdo->prepare($sql);
@@ -247,6 +252,86 @@ class PdoProjet3A
 		}
 
 		return $lesErreurs;
+	}
+
+	/**
+	 * Fonction qui supprime l'utilisateur dont le mail est passé en paramètre
+	 * 
+	 * @param string $mailUtilisateur L'adresse mail de l'utilisateur à supprimer
+	 * @return boolean $toReturn : true en cas de succès
+	 */
+	public function deleteUser($mailUtilisateur){
+		$sql = "DELETE FROM utilisateur WHERE mail = '$mailUtilisateur';";
+
+		$toReturn = false;
+		$statement = PdoProjet3A::$monPdo->prepare($sql);
+
+		if ($statement->execute()) {
+			$toReturn = true;
+		}
+
+		return $toReturn;
+	}
+
+	/**
+	 * Fonction qui retourne les 25 premiers utilisateurs (par ordre alphabétique)
+	 * 
+	 * @return array $infosUtilisateurs Les enregistrements des utilisateurs
+	 */
+	public function get25Utilisateurs()
+	{
+		$infosUtilisateurs = array();
+		$sql = "SELECT * FROM utilisateur NATURAL JOIN role ORDER BY nomUtilisateur, prenomUtilisateur, mail LIMIT 25";
+		$req = PdoProjet3A::$monPdo->prepare($sql);
+		$req->execute();
+
+		if ($req) {
+			$infosUtilisateurs = $req->fetchAll();
+		}
+
+		return $infosUtilisateurs;
+	}
+
+	/**
+	 * Fonction qui retourne les 25 premiers utilisateurs (par ordre alphabétique)
+	 * correspondant à la recherche passée en paramètre
+	 * 
+	 * @param string $recherche Recherche à effectuer
+	 * @return array $infosUtilisateurs Les enregistrements des utilisateurs
+	 */
+	public function chercherUtilisateur($recherche)
+	{
+		$infosUtilisateurs = array();
+		$recherche = explode(" ", $recherche);
+
+		$sql = "SELECT * FROM utilisateur 
+		NATURAL JOIN role
+		WHERE ";
+		$i = 0;
+
+		foreach ($recherche as $elm) {
+			if ($i == 0) {
+				++$i;
+			} else {
+				$sql .= " AND ";
+			}
+
+			$sql .= "(
+				UPPER(nomUtilisateur)	 		LIKE UPPER('%$elm%')
+				OR UPPER(prenomUtilisateur) 	LIKE UPPER('%$elm%')
+				OR UPPER(mail) 					LIKE UPPER('%$elm%')
+				OR UPPER(libelleRole)			LIKE UPPER('%$elm%')
+			)";
+		}
+		$sql .= " ORDER BY nomUtilisateur, prenomUtilisateur, mail LIMIT 25;";
+		$req = PdoProjet3A::$monPdo->prepare($sql);
+		$req->execute();
+
+		if ($req) {
+			$infosUtilisateurs = $req->fetchAll();
+		}
+
+		return $infosUtilisateurs;
 	}
 
 
@@ -351,14 +436,47 @@ class PdoProjet3A
 		return $toReturn;
 	}
 
-	public function listerAppartementsDansImmeuble($immeuble)
+
+	public function chercherImmeublesLibresDansRue($rue, $recherche)
 	{
 		$toReturn = 1;
 
 		if (PdoProjet3A::$monPdo) {
-			$sql = "SELECT idAppartement FROM appartement
-			NATURAL JOIN immeuble
-			WHERE idImmeuble = $immeuble;";
+			$sql = "SELECT idImmeuble, numeroImmeuble 
+			FROM immeuble
+			WHERE idRue = $rue
+			AND	numeroImmeuble LIKE \"%$recherche%\"
+			AND idImmeuble NOT IN (
+				SELECT idImmeuble 
+				FROM posseder
+				WHERE finPossession IS NULL
+			);";
+
+			$req = PdoProjet3A::$monPdo->prepare($sql);
+			$req->execute();
+
+			if ($req) {
+				$infosVilles = $req->fetchAll();
+				$toReturn = $infosVilles;
+			}
+		}
+
+		return $toReturn;
+	}
+
+	public function listerAppartementsLibresDansImmeuble($immeuble)
+	{
+		$toReturn = 1;
+
+		if (PdoProjet3A::$monPdo) {
+			$sql = "SELECT idAppartement 
+			FROM appartement
+			WHERE idImmeuble = $immeuble
+			AND idAppartement NOT IN (
+				SELECT idAppartement 
+				FROM louer
+				WHERE finLocation IS NULL
+			);";
 
 			$req = PdoProjet3A::$monPdo->prepare($sql);
 			$req->execute();
@@ -456,6 +574,32 @@ class PdoProjet3A
 			$userInfo->closeCursor();
 		}
 		return $donneesUser;
+	}
+
+	public function updateUserInfos($mail, $nom, $dateNaiss, $prenom, $mdp)
+	{
+		$succeeded = true;
+		$sql = "UPDATE utilisateur
+		SET nomUtilisateur 		= '$nom',
+			prenomUtilisateur 	= '$prenom',
+			dateNaissance		= '$dateNaiss'";
+
+		if ($mdp != "") {
+			$sql .= ",
+			motDePasse			= '$mdp'";
+		}
+
+		$sql .= "
+		WHERE mail = '$mail';";
+
+		echo $sql;
+		$statement = PdoProjet3A::$monPdo->prepare($sql);
+
+		if (!$statement->execute()) {
+			$succeeded = false;
+		}
+
+		return $succeeded;
 	}
 
 	public function insertImmeuble($numImmeuble, $idRue)
@@ -644,7 +788,7 @@ class PdoProjet3A
 	 * 
 	 * @param string $mailUtilisateur Mail de l'utilisateur
 	 * @param int $idAppartement Identifiant de l'appartement
-	 * @return boolean $toReturn : true si l'immeuble appartient à l'utilisateur, false sinon
+	 * @return boolean $toReturn : true en cas de succès
 	 */
 	public function setFinPossession($mailUtilisateur, $idImmeuble)
 	{
@@ -657,7 +801,7 @@ class PdoProjet3A
 		$toReturn = false;
 		$statement = PdoProjet3A::$monPdo->prepare($sql);
 
-		if($statement->execute()){
+		if ($statement->execute()) {
 			$toReturn = true;
 		}
 

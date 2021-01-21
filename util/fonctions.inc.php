@@ -32,9 +32,16 @@ function estUnMail($mail)
  * @param string $prenom Prenom de l'utilisateur
  * @param string $mail Mail de l'utilisateur
  * @param string $mdp Mot de passe de l'utilisateur
+ * @param string $verifMdp Confirmation du mot de passe de l'utilisateur
+ * @param int $ville Identifiant de la ville
+ * @param int $rue Identifiant de la rue
+ * @param int $immeule Identifiant de l'immeuble
+ * @param int $appartement Identifiant de l'appartement
+ * @param string $situationUser "locataire" ou "proprietaire"
+ * @param date $debutLocation Date de début de la location/possession
  * @return array $lesErreurs un tableau de chaînes d'erreurs
  */
-function getErreursSaisieInscription($nom, $prenom, $mail, $mdp, $ville, $rue, $immeuble, $appartement, $situationUser)
+function getErreursSaisieInscription($nom, $prenom, $mail, $mdp, $verifMdp, $ville, $rue, $immeuble, $appartement, $situationUser, $debutLocation)
 {
 	$lesErreurs = array();
 	if ($nom == "") {
@@ -49,9 +56,49 @@ function getErreursSaisieInscription($nom, $prenom, $mail, $mdp, $ville, $rue, $
 	if (!estUnMail($mail)) {
 		$lesErreurs[] =  "Erreur de mail";
 	}
-	if ($mdp == "") {
-		$lesErreurs[] = "Il faut saisir le champ mot de passe";
+	
+	
+	$mdpEmpty = false;
+	if($mdp == ""){
+		$mdpEmpty = true;
 	}
+
+	$verifMdpEmpty = false;
+	if($verifMdp == ""){
+		$verifMdpEmpty = true;
+	}
+
+	//Entrée : le champ du mot de passe est saisie mais pas celui de la verification du mot de passe
+	//		OU le champ du mot de pas n'est pas saisie mais celui de la vérification du mot de passe l'est
+	if( 	( !$mdpEmpty &&  $verifMdpEmpty )
+		||	(  $mdpEmpty && !$verifMdpEmpty )
+	){
+		$lesErreurs[] = "Il faut saisir votre mot de passe 2 fois.";
+	} else if (strcmp($mdp, $verifMdp) != 0){
+		$lesErreurs[] = "Les champs du mot de passe ne correspondent pas.";
+	}
+
+	
+	$lesErreurs = array_merge($lesErreurs, getErreursSaisieAjoutLocPoss($ville, $rue, $immeuble, $appartement, $situationUser, $debutLocation));
+
+	return $lesErreurs;
+}
+
+
+/**
+ * Retourne un tableau d'erreurs de saisie pour la création d'un nouvel utilisateur
+ *
+ * @param int $ville Identifiant de la ville
+ * @param int $rue Identifiant de la rue
+ * @param int $immeule Identifiant de l'immeuble
+ * @param int $appartement Identifiant de l'appartement
+ * @param string $situationUser "locataire" ou "proprietaire"
+ * @param date $debutLocation Date de début de la location/possession
+ * @return array $lesErreurs un tableau de chaînes d'erreurs
+ */
+function getErreursSaisieAjoutLocPoss($ville, $rue, $immeuble, $appartement, $situationUser, $debutLocation)
+{
+	$lesErreurs = array();
 	if ($ville == "") {
 		$lesErreurs[] = "Il faut séléctionner une ville";
 	}
@@ -60,13 +107,71 @@ function getErreursSaisieInscription($nom, $prenom, $mail, $mdp, $ville, $rue, $
 	}
 	if ($immeuble == "") {
 		$lesErreurs[] = "Il faut séléctionner un immeuble";
-	} else if ($situationUser == "" || (strcmp($situationUser, "locataire") != 0 && strcmp($situationUser, "proprietaire") != 0)) {
+	}
+	if($debutLocation == "") {
+		$lesErreurs[] = "Il faut saire une date de début de location/possession";
+	}
+	
+	//Entrée : l'utilisateur n'a pas présisé s'il était propriétaire ou location
+	//		OU la valeur n'a rien à voir avec ce qui était prévu
+	if ($situationUser == "" || (strcmp($situationUser, "locataire") != 0 && strcmp($situationUser, "proprietaire") != 0)) {
 		$lesErreurs[] = "Il faut spécifier si vous êtes propriétaire ou locataire ";
-	} else if (strcmp($situationUser, "locataire") == 0 && $appartement == "") {
+	} 
+	//Entrée : L'utilisateur est locataire mais n'a pas spécifié d'appartement
+	else if (strcmp($situationUser, "locataire") == 0 && $appartement == "") {
 		$lesErreurs[] = "Il faut séléctionner un appartement";
 	}
 	return $lesErreurs;
 }
+
+
+/**
+ * Retourne un tableau d'erreurs de saisie pour la création d'un nouvel utilisateur
+ *
+ * @param string $nom Nouveau nom de l'utilisateur
+ * @param string $prenom Nouveau prenom de l'utilisateur
+ * @param string $mdp Nouveau mot de passe de l'utilisateur
+ * @param string $verifMdp Confirmation du nouveau mot de passe de l'utilisateur
+ * @return array $lesErreurs un tableau de chaînes d'erreurs
+ */
+function getErreursSaisieModifInfos($nom, $prenom, $dateNaiss, $mdp, $verifMdp)
+{
+	$lesErreurs = array();
+
+	if ($nom == "") {
+		$lesErreurs[] = "Il faut saisir votre nom.";
+	}
+	if ($prenom == "") {
+		$lesErreurs[] = "Il faut saisir votre prénom.";
+	}
+	if($dateNaiss == ""){
+		$lesErreurs[] = "Vous devez saisir votre date de naissance.";
+	}
+
+	$mdpEmpty = false;
+	if($mdp == ""){
+		$mdpEmpty = true;
+	}
+
+	$verifMdpEmpty = false;
+	if($verifMdp == ""){
+		$verifMdpEmpty = true;
+	}
+
+	//Entrée : le champ du mot de passe est saisie mais pas celui de la verification du mot de passe
+	//		OU le champ du mot de pas n'est pas saisie mais celui de la vérification du mot de passe l'est
+	if( 	( !$mdpEmpty &&  $verifMdpEmpty )
+		||	(  $mdpEmpty && !$verifMdpEmpty )
+	){
+		$lesErreurs[] = "Il faut saisir votre mot de passe 2 fois.";
+	} else if (strcmp($mdp, $verifMdp) != 0){
+		$lesErreurs[] = "Les champs du mot de passe ne correspondent pas.";
+	}
+
+	return $lesErreurs;
+}
+
+
 
 /**
  * Fonction qui creer une image dans le fichier images/

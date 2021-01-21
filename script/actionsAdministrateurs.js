@@ -1,13 +1,15 @@
-function ajaxDateFin(immeuble) {
+function ajaxSupprimerUtilisateur(utilisateur) {
 
-    var idImmeuble = immeuble.id;
+    var mailUtilisateur = utilisateur.id;
+    var regex = /^utilisateur-([\w.-]+@[\w.-]+\.[a-zA-Z]{2,6})/;
 
-    if (/^immeuble-([0-9]+)/.test(idImmeuble) && (idImmeuble = idImmeuble.match(/^immeuble-([0-9]+)/)[1])) {
+    if (regex.test(mailUtilisateur) && (mailUtilisateur = mailUtilisateur.match(regex)[1])) {
+        console.log(mailUtilisateur);
         $.ajax({
-            url: 'ajax/setDateFinPossession.php',
+            url: 'ajax/deleteUtilisateur.php',
             type: 'POST',
             dataType: 'text',
-            data: "idImmeuble=" + idImmeuble,
+            data: "mailUtilisateur=" + mailUtilisateur,
             success: function (data) {
                 try {
                     var output = JSON.parse(data);
@@ -17,7 +19,7 @@ function ajaxDateFin(immeuble) {
                     return;
                 }
 
-                immeuble.parentNode.removeChild(immeuble);
+                utilisateur.parentNode.removeChild(utilisateur);
 
                 if(output['success']) {
                     alert(output['success']);

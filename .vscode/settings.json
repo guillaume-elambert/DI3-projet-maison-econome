@@ -10,8 +10,14 @@
             "driver": "MySQL",
             "name": "Projet BDD",
             "username": "root",
-            "database": "3a_di_projet",
+            "database": "di_3a_projet",
             "password": ""
         }
-    ]
+    ],
+    "markdown.extension.toc.omittedFromToc": {
+        // Use a path relative to your workspace.
+        "README.md": [
+            "## Table des matières",
+        ]
+      }
 }

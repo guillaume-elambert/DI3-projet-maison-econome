@@ -1,20 +1,20 @@
-<table class="niceLookingTable">
+<table id="tableUtilisateurs" class="niceLookingTable">
     <thead>
         <tr>
             <th>
-                N°
+                Nom
             </th>
             <th>
-                Rue
+                Prénom
             </th>
             <th>
-                CP
+                Mail
             </th>
             <th>
-                Ville
+                Role
             </th>
             <?php
-            if(isset($actionsImmeubles)){
+            if(isset($actions) && isset($actions['admin'])){
                 echo "<th>Actions</th>";
             }
             ?>
@@ -23,34 +23,34 @@
 
     <tbody>
         <?php
-        foreach ($immeubles as $unImmeuble) {
+        foreach ($utilisateurs as $unUtilisateur) {
         ?>
 
-            <tr id="immeuble-<?php echo $unImmeuble['idImmeuble']; ?>">
+            <tr id="utilisateur-<?php echo $unUtilisateur['mail']; ?>">
                 <td>
-                    <?php echo $unImmeuble['numeroImmeuble']; ?>
+                    <?php echo $unUtilisateur['nomUtilisateur']; ?>
                 </td>
                 <td>
-                    <?php echo $unImmeuble['nomRue']; ?>
+                    <?php echo $unUtilisateur['prenomUtilisateur']; ?>
                 </td>
                 <td>
-                    <?php echo $unImmeuble['cp']; ?>
+                    <?php echo $unUtilisateur['mail']; ?>
                 </td>
                 <td>
-                    <?php echo $unImmeuble['nomVille']; ?>
+                    <?php echo $unUtilisateur['libelleRole']; ?>
                 </td>
                 <?php
-                if(isset($actionsImmeubles)){
-                    echo "<td class=\"tdActions\">";
+                if(isset($actions) && isset($actions['admin'])){
+                    echo "<td><div class=\"divActions\">";
 
-                    foreach($actionsImmeubles as $nomAction => $attributsAction ){
+                    foreach($actions['admin'] as $nomAction => $attributsAction ){
                         echo "<a";
                         foreach($attributsAction as $nomAttribut => $contenuAttribut){
                             echo " $nomAttribut=\"$contenuAttribut\"";
                         }
                         echo "></a>";
                     }
-                    echo "</td>";
+                    echo "</div></td>";
                 }
                 ?>
             </tr>

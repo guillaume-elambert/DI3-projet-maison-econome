@@ -2,7 +2,7 @@
 require_once("../util/config.php");
 require_once("../util/class.PdoProjet3A.inc.php");
 $pdo = PdoProjet3A::getPdo();
-$lesAppartements = array();
-$lesAppartements = json_encode($pdo->listerAppartementsDansImmeuble($_REQUEST['immeuble']));
+$lesImmeubles = array();
+$lesImmeubles = json_encode($pdo->chercherImmeublesLibresDansRue($_REQUEST['rue'], $_REQUEST['recherche']));
 header('Content-Type: application/json');
-echo $lesAppartements;
+echo $lesImmeubles;
