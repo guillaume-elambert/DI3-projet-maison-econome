@@ -10,7 +10,7 @@
         </li>
     </ul>
     Merci pour votre confiance ! <br /> <br />
-    <strong> L'équipe PdG </strong><br/><br/>
-    <img src="<?php echo HOME; ?>assets/les_3_pdg.jpg"  alt="les_PdG" /><br/>
-    
+    <strong> L'équipe PdG </strong><br /><br />
+    <img src="<?php echo HOME; ?>assets/les_3_pdg.jpg" alt="les_PdG" /><br />
+
 </div>

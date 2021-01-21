@@ -12,6 +12,12 @@ $mailUtilisateur = $_REQUEST['mailUtilisateur'];
 //      OU l'utilisateur essaie de se supprimer lui-même
 if(isset($_SESSION['admin']) || (isset($_SESSION['user']) && strcmp($_SESSION['user'], $mailUtilisateur) == 0 ) ){
     if($pdo->deleteUser($mailUtilisateur)){
+        
+        //On supprime la session si l'utilisateur se supprime
+        if(strcmp($mailUtilisateur, $_SESSION['user']) == 0){
+            unset($_SESSION);
+        }
+
         $message['success'] = "L'utilisateur $mailUtilisateur à bien été supprimé";
     } else {
         $message['erreurs'] = "Une erreur est survenue...";

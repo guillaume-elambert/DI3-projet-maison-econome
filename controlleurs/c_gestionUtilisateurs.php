@@ -19,7 +19,7 @@ switch ($action) {
 			}
 			var_dump($_SESSION);
 			$redirect	= HOME;
-			$success[]	= "Vous êtes bien déconnectez !";
+			$success[]	= "Vous êtes bien déconnecté !";
 		}
 		//Entrée : l'utilisateur vient d'envoyer des info de connexion via le formulaire
 		else if (isset($_POST['mail']) && isset($_POST['mdp'])) {
@@ -29,7 +29,7 @@ switch ($action) {
 			//Entrée : la fonction connexionUtilisateur n'a pas retournée d'erreur
 			if (isset($_SESSION['user'])) {
 				$redirect	= "?uc=espace&action=dashboard";
-				$success[]	= "Vous êtes bien connectez !";
+				$success[]	= "Vous êtes bien connecté !";
 			}
 			//Entrée : il y a eu une erreur lors de la connexion
 			else {
@@ -49,7 +49,7 @@ switch ($action) {
 	case 'inscription':
 		//Entrée : l'utilisateur est déjà connecté
 		if (isset($_SESSION['user'])) {
-			$messages[] = "Vous êtes connectez, pas besoin de vous inscrire.";
+			$messages[] = "Vous êtes connecté, pas besoin de vous inscrire.";
 			$redirect 	= HOME;
 		} else {
 
@@ -99,7 +99,7 @@ switch ($action) {
 		//Entrée : l'utilisateur est connecté
 		//	=> il ne doit pas avoir accès à cette page : redirection
 		if (isset($_SESSION['user'])) {
-			$messages[] = "Vous êtes connectez, pas besoin de créer un compte !";
+			$messages[] = "Vous êtes connecté, pas besoin de créer un compte !";
 			$redirect = HOME;
 		} else if (isset($_POST['mail'])) {
 
@@ -151,7 +151,7 @@ switch ($action) {
 						}
 
 						$redirect 	= "?uc=espace&action=dashboard";
-						$messages[] = "Vous êtes bien inscris et connectez. A l'avenir votre identifiant sera : " . $_POST['mail'] . " !";
+						$messages[] = "Vous êtes bien inscrit et connecté. A l'avenir votre identifiant sera : " . $_POST['mail'] . " !";
 					} else {
 						$setSessionValues = true;
 

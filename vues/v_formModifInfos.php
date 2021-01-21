@@ -1,4 +1,4 @@
-<form id="formModifInfos" method="POST" action="?uc=<?php echo $uc; ?>&action=<?php echo $action; ?>">
+<form id="formModifInfos" method="POST" action="?uc=<?php echo $uc; ?>&action=<?php echo $action.(isset($roles)?"&user=".$_GET['user']:""); ?>">
     <fieldset>
         <legend>
             <h3>Modifier mes informations</h3>
@@ -26,6 +26,17 @@
                     </td>
                 </tr>
 
+                
+
+                <tr class="champ">
+                    <td>
+                        Adresse mail <span class="red">*</span>
+                    </td>
+                    <td>
+                    <input id="mail" type="text" name="mail" value="<?php echo $nouvMail; ?>" maxlength="50" required>
+                    </td>
+                </tr>
+
                 <tr class="champ">
                     <td>
                         Date de naissance <span class="red">*</span>
@@ -34,6 +45,37 @@
                         <input id="dateNaiss" type="date" name="dateNaiss" value="<?php echo $dateNaiss ?>" max="<?php echo date("Y-m-d"); ?>" required>
                     </td>
                 </tr>
+                
+
+                <?php
+                if (isset($roles) && is_array($roles) && !empty($roles)) {
+                ?>
+
+                    <tr class="champ">
+                        <td>
+                            Role <span class="red">*</span>
+                        </td>
+
+                        <td>
+                            <select id="selectRole" name="role" required>
+                                <option value="">--- Veuillez choisir un rôle ---</option>
+                                <?php
+                                
+                                foreach($roles as $unRole){
+                                    //var_dump($unRole); salut mec discord ??????
+                                    $selected = ($unRole['idRole'] == $role)?"selected":"";
+
+                                    echo '<option value="'.$unRole['idRole']."\" $selected>".$unRole['libelleRole'].'</option>';
+                                }
+
+                                ?>
+
+
+                            </select>
+                        </td>
+                    </tr>
+
+                <?php } ?>
 
                 <tr class="champ">
                     <td>

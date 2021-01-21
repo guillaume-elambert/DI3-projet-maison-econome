@@ -132,9 +132,10 @@ function getErreursSaisieAjoutLocPoss($ville, $rue, $immeuble, $appartement, $si
  * @param string $prenom Nouveau prenom de l'utilisateur
  * @param string $mdp Nouveau mot de passe de l'utilisateur
  * @param string $verifMdp Confirmation du nouveau mot de passe de l'utilisateur
+ * @param int $roel Identifiant du rôle de l'utilisateur
  * @return array $lesErreurs un tableau de chaînes d'erreurs
  */
-function getErreursSaisieModifInfos($nom, $prenom, $dateNaiss, $mdp, $verifMdp)
+function getErreursSaisieModifInfos($nom, $prenom, $dateNaiss, $mdp, $verifMdp, $role)
 {
 	$lesErreurs = array();
 
@@ -166,6 +167,10 @@ function getErreursSaisieModifInfos($nom, $prenom, $dateNaiss, $mdp, $verifMdp)
 		$lesErreurs[] = "Il faut saisir votre mot de passe 2 fois.";
 	} else if (strcmp($mdp, $verifMdp) != 0){
 		$lesErreurs[] = "Les champs du mot de passe ne correspondent pas.";
+	}
+
+	if($role == ""){
+		$lesErreurs[] = "Il faut selectionner le rôle de l'utilisateur";
 	}
 
 	return $lesErreurs;

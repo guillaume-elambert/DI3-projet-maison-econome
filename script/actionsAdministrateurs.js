@@ -4,7 +4,7 @@ function ajaxSupprimerUtilisateur(utilisateur) {
     var regex = /^utilisateur-([\w.-]+@[\w.-]+\.[a-zA-Z]{2,6})/;
 
     if (regex.test(mailUtilisateur) && (mailUtilisateur = mailUtilisateur.match(regex)[1])) {
-        console.log(mailUtilisateur);
+        
         $.ajax({
             url: 'ajax/deleteUtilisateur.php',
             type: 'POST',
@@ -33,5 +33,24 @@ function ajaxSupprimerUtilisateur(utilisateur) {
                 alert("AJAX Call Error: " + error);
             }
         });
+    }
+}
+
+
+function redirectModificationUtilisateur(utilisateur) {
+
+    var mailUtilisateur = utilisateur.id;
+    var regexMail = /^utilisateur-([\w.-]+@[\w.-]+\.[a-zA-Z]{2,6})/;
+    var regexPHP = /^(\?uc=[\w-]+)&action=[\w-]+/
+    var searchURL = $(location).attr("search");
+
+    if (regexMail.test(mailUtilisateur) && (mailUtilisateur = mailUtilisateur.match(regexMail)[1])) {
+        if(searchURL && searchURL != ""){
+            if(regexPHP.test(searchURL)){
+                var resRegexPHP = searchURL.match(regexPHP);
+                var toRedirect = resRegexPHP[1]+"&action=modifier-utilisateur&user="+mailUtilisateur;
+                $(location).attr("search", toRedirect);
+            }
+        }
     }
 }

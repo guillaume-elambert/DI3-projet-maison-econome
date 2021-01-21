@@ -493,7 +493,7 @@ class PdoProjet3A
 
 	public function getUserInfos($mail)
 	{
-		$donneesUser = "Erreur...";
+		$donneesUser = array();
 		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM utilisateur WHERE mail = '$mail'");
 
 		if ($userInfo) {
@@ -503,10 +503,21 @@ class PdoProjet3A
 		return $donneesUser;
 	}
 
+	public function getRoles(){
+		$infosRoles = array();
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM role");
+
+		if ($req) {
+			$infosRoles = $req->fetchAll();
+			$req->closeCursor();
+		}
+		return $infosRoles;
+	}
+
 
 	public function getUserPossession($mail)
 	{
-		$donneesUser = "Erreur...";
+		$donneesUser = array();
 
 		$sql = "SELECT * FROM posseder
 		NATURAL JOIN immeuble
@@ -527,7 +538,7 @@ class PdoProjet3A
 
 	public function getUserLocInfos($mail)
 	{
-		$donneesUser = "Erreur...";
+		$donneesUser = array();
 		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM louer WHERE mail = '$mail' AND finLocation IS NULL");
 
 		if ($userInfo) {
@@ -540,7 +551,7 @@ class PdoProjet3A
 
 	public function getInfosImmeuble($idImmeuble)
 	{
-		$donneesUser = "Erreur...";
+		$donneesUser = array();
 		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM immeuble WHERE idImmeuble = '$idImmeuble'");
 
 		if ($userInfo) {
@@ -553,7 +564,7 @@ class PdoProjet3A
 
 	public function getRueInfos($rue)
 	{
-		$donneesUser = "Erreur...";
+		$donneesUser = array();
 		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM rue WHERE idRue = '$rue'");
 
 		if ($userInfo) {
@@ -566,7 +577,7 @@ class PdoProjet3A
 
 	public function getVilleInfos($ville)
 	{
-		$donneesUser = "Erreur...";
+		$donneesUser = array();
 		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM ville WHERE idVille = '$ville'");
 
 		if ($userInfo) {
@@ -576,23 +587,28 @@ class PdoProjet3A
 		return $donneesUser;
 	}
 
-	public function updateUserInfos($mail, $nom, $dateNaiss, $prenom, $mdp)
+	public function updateUserInfos($mail, $nouvMail, $nom, $dateNaiss, $prenom, $mdp, $role)
 	{
 		$succeeded = true;
 		$sql = "UPDATE utilisateur
 		SET nomUtilisateur 		= '$nom',
 			prenomUtilisateur 	= '$prenom',
-			dateNaissance		= '$dateNaiss'";
+			dateNaissance		= '$dateNaiss',
+			mail				= '$nouvMail'";
 
 		if ($mdp != "") {
 			$sql .= ",
 			motDePasse			= '$mdp'";
 		}
 
+		if ($role != -1){
+			$sql .= ",
+			idRole				= $role";
+		}
+
 		$sql .= "
 		WHERE mail = '$mail';";
 
-		echo $sql;
 		$statement = PdoProjet3A::$monPdo->prepare($sql);
 
 		if (!$statement->execute()) {
@@ -601,6 +617,7 @@ class PdoProjet3A
 
 		return $succeeded;
 	}
+
 
 	public function insertImmeuble($numImmeuble, $idRue)
 	{
@@ -685,7 +702,7 @@ class PdoProjet3A
 
 	public function getPieceInfos($immeuble, $appartement)
 	{
-		$donneesUser = "Erreur...";
+		$donneesUser = array();
 		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM piece WHERE idAppartement = '$appartement' AND idImmeuble=$immeuble");
 
 		if ($userInfo) {
@@ -697,7 +714,7 @@ class PdoProjet3A
 
 	public function getApptInfos($immeuble, $appartement)
 	{
-		$donneesUser = "Erreur...";
+		$donneesUser = array();
 		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM appartement WHERE idAppartement = '$appartement' AND idImmeuble=$immeuble");
 
 		if ($userInfo) {
@@ -710,7 +727,7 @@ class PdoProjet3A
 
 	public function getAppareilInfos($immeuble, $appartement)
 	{
-		$donneesUser = "Erreur...";
+		$donneesUser = array();
 		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM appareil WHERE idAppartement = '$appartement' AND idImmeuble=$immeuble");
 
 		if ($userInfo) {
@@ -723,7 +740,7 @@ class PdoProjet3A
 
 	public function getConsoInfos($appareil)
 	{
-		$donneesUser = "Erreur...";
+		$donneesUser = array();
 		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM consommer NATURAL JOIN typeenergie NATURAL JOIN substance_energie WHERE idTypeAppareil = $appareil");
 
 		if ($userInfo) {

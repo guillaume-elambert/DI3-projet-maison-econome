@@ -2,7 +2,7 @@
 
 if (!isset($_SESSION['user'])) {
     $redirect = HOME;
-    $messages[] = "Vous devez être connectez pour accéder à cette page.";
+    $messages[] = "Vous devez être connecté pour accéder à cette page.";
 } else {
     if (isset($_GET['action'])) {
         $action = $_GET['action'];
@@ -39,6 +39,7 @@ if (!isset($_SESSION['user'])) {
         case "modifier-mes-infos":
 
             if (isset($_POST['nom'])) {
+                $nouvMail   = $_POST['mail'];
                 $nom        = $_POST['nom'];
                 $prenom     = $_POST['prenom'];
 
@@ -46,11 +47,13 @@ if (!isset($_SESSION['user'])) {
                 $mdp        = $_POST['mdp'];
                 $verifMdp   = $_POST['verifMdp'];
 
-                $erreurs = getErreursSaisieModifInfos($nom, $prenom, $dateNaiss, $mdp, $verifMdp);
+                $erreurs = getErreursSaisieModifInfos($nom, $prenom, $dateNaiss, $mdp, $verifMdp, -1);
 
                 if (empty($erreurs)) {
 
-                    if ($pdo->updateUserInfos($_SESSION['user'], $nom, $dateNaiss, $prenom, $mdp)) {
+                    if ($pdo->updateUserInfos($_SESSION['user'], $nouvMail, $nom, $dateNaiss, $prenom, $mdp, -1)) {
+                        $_SESSION['user'] = $nouvMail;
+                        
                         $success[] = "Modifications enregistrées avec succès";
                         $redirect = "?uc=$uc&action=mes-infos";
                     } else {
@@ -66,23 +69,18 @@ if (!isset($_SESSION['user'])) {
             } else {
                 $donneesUser = $pdo->getUserInfos($_SESSION['user']);
 
-                if (isset($_SESSION['nom'])) {
-                    $nom = $_SESSION['nom'];
-                    unset($_SESSION['nom']);
-                } else $nom = $donneesUser['nomUtilisateur'];
+                if (!empty($donneesUser)) {
+                    $nouvMail   = $_SESSION['user'];
+                    $nom        = $donneesUser['nomUtilisateur'];
+                    $prenom     = $donneesUser['prenomUtilisateur'];
+                    $dateNaiss  = $donneesUser['dateNaissance'];
 
-                if (isset($_SESSION['prenom'])) {
-                    $prenom = $_SESSION['prenom'];
-                    unset($_SESSION['prenom']);
-                } else $prenom = $donneesUser['prenomUtilisateur'];
-
-                if (isset($_SESSION['dateNaiss'])) {
-                    $dateNaiss = $_SESSION['dateNaiss'];
-                    unset($_SESSION['dateNaiss']);
-                } else $dateNaiss = $donneesUser['dateNaissance'];
-
-                include("vues/v_formModifInfos.php");
-                $javascript[] = HOME . 'script/modifInfosUtilisateur.js';
+                    include("vues/v_formModifInfos.php");
+                    $javascript[] = HOME . 'script/modifInfosUtilisateur.js';
+                } else {
+                    $messages[] = "Une erreur s'est produite...";
+                    $redirect = "?uc=$uc&action=mes-infos";
+                }
             }
             break;
 
@@ -126,9 +124,9 @@ if (!isset($_SESSION['user'])) {
                     $redirect     = "?uc=$uc&action=mes-infos";
 
                     if (strcmp($situationUser, "locataire") == 0) {
-                        $msg = "Votre location à bien été enregistrée.";
+                        $msg = "Votre location a bien été enregistrée.";
                     } else {
-                        $msg = "Votre possession à bien été enregistrée.";
+                        $msg = "Votre possession a bien été enregistrée.";
                     }
                     $messages[] = $msg;
                 } else {

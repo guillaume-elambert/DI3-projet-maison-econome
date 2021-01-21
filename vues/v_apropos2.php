@@ -11,4 +11,4 @@
 <p class="a_propos_2">connexion :
 <progress value="100" max="100">100 %</progress> ✔<br/></p>
 <p class="a_propos_2">mon profil :
-<progress value="35" max="100">35 %</progress> 35%<br/></p>
+<progress value="95" max="100">95 %</progress> 95%<br/></p>
