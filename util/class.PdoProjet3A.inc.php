@@ -260,7 +260,8 @@ class PdoProjet3A
 	 * @param string $mailUtilisateur L'adresse mail de l'utilisateur à supprimer
 	 * @return boolean $toReturn : true en cas de succès
 	 */
-	public function deleteUser($mailUtilisateur){
+	public function deleteUser($mailUtilisateur)
+	{
 		$sql = "DELETE FROM utilisateur WHERE mail = '$mailUtilisateur';";
 
 		$toReturn = false;
@@ -503,7 +504,8 @@ class PdoProjet3A
 		return $donneesUser;
 	}
 
-	public function getRoles(){
+	public function getRoles()
+	{
 		$infosRoles = array();
 		$req = PdoProjet3A::$monPdo->query("SELECT * FROM role");
 
@@ -601,7 +603,7 @@ class PdoProjet3A
 			motDePasse			= '$mdp'";
 		}
 
-		if ($role != -1){
+		if ($role != -1) {
 			$sql .= ",
 			idRole				= $role";
 		}
@@ -619,48 +621,47 @@ class PdoProjet3A
 	}
 
 
-	public function insertImmeuble($numImmeuble, $idRue)
+	/**
+	 * @param int $idRue Identifiant de la rue de l'appartement
+	 * @param string $numImmeuble Numéro de l'immeuble à ajouter
+	 * @return boolean Renvoie true si la requête à réussi, false sinon
+	 */
+	public function insertImmeuble($idRue, $numImmeuble)
 	{
-		$res = 1;
-		$msg = "Une erreur s'est produite...";
+		$res = false;
 
 		$sql = "INSERT INTO immeuble (numeroImmeuble, idRue) VALUES ($numImmeuble, $idRue);";
 
-		try {
-			$statement = PdoProjet3A::$monPdo->prepare($sql);
+		$statement = PdoProjet3A::$monPdo->prepare($sql);
 
-			if (!$statement->execute()) {
-				$res = 1;
-			}
-		} catch (PDOException $e) {
-			$res = 1;
+		if ($statement->execute()) {
+			$res = true;
 		}
 
 		return $res;
 	}
 
 
-	public function insertAppartement($idImmeuble, $degreSecurite, $idTypeAppart)
+	/**
+	 * @param int $idImmeuble Identifiant de l'immeuble de l'appartement
+	 * @param int $degreSecurite Identifiant du degré de sécurité de l'appartement
+	 * @param int $idTypeAppart Identifiant du type de l'appartement
+	 * @return boolean Renvoie true si la requête à réussi, false sinon
+	 */
+	public function insertAppartement($idImmeuble, $idTypeAppart, $degreSecurite)
 	{
-		$res = 1;
-		$msg = "Une erreur s'est produite...";
+		$res = false;
 
 		$sql = "INSERT INTO appartement (idImmeuble, idDegreSecurite, idTypeAppart) VALUES ($idImmeuble, $degreSecurite, $idTypeAppart);";
-		echo $sql;
-		try {
-			$statement = PdoProjet3A::$monPdo->prepare($sql);
 
-			if (!$statement->execute()) {
-				$res = 1;
-			}
-		} catch (PDOException $e) {
-			$res = 1;
-		}
+		$statement = PdoProjet3A::$monPdo->prepare($sql);
+
+		$res = $statement->execute();
 
 		return $res;
 	}
 
-	public function getDegreSecurite()
+	public function getDegresSecurite()
 	{
 		$res = array();
 		$req = PdoProjet3A::$monPdo->query("SELECT * FROM degresecurite");
@@ -674,7 +675,7 @@ class PdoProjet3A
 	}
 
 
-	public function getTypeAppartement()
+	public function getTypesAppartement()
 	{
 		$res = array();
 		$req = PdoProjet3A::$monPdo->query("SELECT * FROM typeappartement");

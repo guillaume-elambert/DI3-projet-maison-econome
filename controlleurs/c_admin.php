@@ -85,6 +85,69 @@ if (!isset($_SESSION['user'])) {
             }
             break;
 
+            case "ajoutImmeuble":
+                if (isset($_POST['immeuble'])) {
+                    $rue   = $_POST['rue'];
+                    $immeuble   = $_POST['immeuble'];
+    
+                    $erreurs = getErreursSaisieAjoutImmeuble($rue, $immeuble);
+    
+                    if (empty($erreurs)) {
+    
+                        if ($pdo->insertImmeuble($rue, $immeuble)) {    
+                            $success[] = "L'immeuble a été enregistré avec succès";
+                            $redirect = "?uc=$uc&action=$action";
+                        } else {
+                            $messages[] = "Une erreur s'est produite...";
+                            $redirect = "?uc=$uc&action=$action";
+                        }
+                    } else {
+                        $setSessionValues = true;
+    
+                        $erreurs[] = "Les champs n'ont pas été correctement saisis";
+                        $redirect = "?uc=$uc&action=$action";
+                    }
+                } else {
+                    $rue        = "";
+                    $immeuble   = "";
+
+                    $javascript[] = HOME . 'script/formAjoutImmeuble.js';
+                    include("vues/v_formAjoutImmeuble.php");
+                }
+                break;
+                
+            case "ajoutAppartement" :
+                if (isset($_POST['immeuble'])) {
+                    $immeuble       = $_POST['immeuble'];
+                    $typeAppart     = $_POST['typeAppart'];
+                    $degreSecurite  = $_POST['degreSecurite'];
+    
+                    $erreurs = getErreursSaisieAjoutAppartement($immeuble, $typeAppart, $degreSecurite);
+    
+                    if (empty($erreurs)) {
+    
+                        if ($pdo->insertAppartement($immeuble, $typeAppart, $degreSecurite)) {
+                            $success[] = "L'appartement a été enregistré avec succès";
+                            $redirect = "?uc=$uc&action=$action";
+                        } else {
+                            $messages[] = "Une erreur s'est produite...";
+                            $redirect = "?uc=$uc&action=$action";
+                        }
+                    } else {
+                        $setSessionValues = true;
+    
+                        $erreurs[] = "Les champs n'ont pas été correctement saisis";
+                        $redirect = "?uc=$uc&action=$action";
+                    }
+                } else {
+                    $degresSecurite = $pdo->getDegresSecurite();
+                    $typesAppart = $pdo->getTypesAppartement();
+
+                    $javascript[] = HOME . 'script/formAjoutAppartement.js';
+                    include("vues/v_formAjoutAppartement.php");
+                }
+                break;
+
         default:
             $redirect = "?uc=$uc&action=gerer-utilisateurs";
             break;

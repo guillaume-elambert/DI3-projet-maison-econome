@@ -44,7 +44,7 @@
       </a>
 
       <ul class="subnavigation">
-        <li><a class="link" href="<?php echo HOME; ?>?uc=info&action=equipe">Les devellopeurs</a></li>
+        <li><a class="link" href="<?php echo HOME; ?>?uc=info&action=equipe">Les développeurs</a></li>
         <li><a class="link" href="<?php echo HOME; ?>?uc=info&action=avancement">Le site</a></li>
       </ul>
     </li>

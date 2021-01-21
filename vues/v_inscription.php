@@ -62,7 +62,7 @@
                </td>
             </tr>
 
-            <?php include("vues/v_champsAjoutAppart.php"); ?>
+            <?php include("vues/v_champsAjoutLocPoss.php"); ?>
 
             <tr>
                <td>

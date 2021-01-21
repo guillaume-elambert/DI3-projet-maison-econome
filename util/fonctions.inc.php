@@ -56,29 +56,29 @@ function getErreursSaisieInscription($nom, $prenom, $mail, $mdp, $verifMdp, $vil
 	if (!estUnMail($mail)) {
 		$lesErreurs[] =  "Erreur de mail";
 	}
-	
-	
+
+
 	$mdpEmpty = false;
-	if($mdp == ""){
+	if ($mdp == "") {
 		$mdpEmpty = true;
 	}
 
 	$verifMdpEmpty = false;
-	if($verifMdp == ""){
+	if ($verifMdp == "") {
 		$verifMdpEmpty = true;
 	}
 
 	//Entrée : le champ du mot de passe est saisie mais pas celui de la verification du mot de passe
 	//		OU le champ du mot de pas n'est pas saisie mais celui de la vérification du mot de passe l'est
-	if( 	( !$mdpEmpty &&  $verifMdpEmpty )
-		||	(  $mdpEmpty && !$verifMdpEmpty )
-	){
+	if ((!$mdpEmpty &&  $verifMdpEmpty)
+		||	($mdpEmpty && !$verifMdpEmpty)
+	) {
 		$lesErreurs[] = "Il faut saisir votre mot de passe 2 fois.";
-	} else if (strcmp($mdp, $verifMdp) != 0){
+	} else if (strcmp($mdp, $verifMdp) != 0) {
 		$lesErreurs[] = "Les champs du mot de passe ne correspondent pas.";
 	}
 
-	
+
 	$lesErreurs = array_merge($lesErreurs, getErreursSaisieAjoutLocPoss($ville, $rue, $immeuble, $appartement, $situationUser, $debutLocation));
 
 	return $lesErreurs;
@@ -108,15 +108,15 @@ function getErreursSaisieAjoutLocPoss($ville, $rue, $immeuble, $appartement, $si
 	if ($immeuble == "") {
 		$lesErreurs[] = "Il faut séléctionner un immeuble";
 	}
-	if($debutLocation == "") {
+	if ($debutLocation == "") {
 		$lesErreurs[] = "Il faut saire une date de début de location/possession";
 	}
-	
+
 	//Entrée : l'utilisateur n'a pas présisé s'il était propriétaire ou location
 	//		OU la valeur n'a rien à voir avec ce qui était prévu
 	if ($situationUser == "" || (strcmp($situationUser, "locataire") != 0 && strcmp($situationUser, "proprietaire") != 0)) {
 		$lesErreurs[] = "Il faut spécifier si vous êtes propriétaire ou locataire ";
-	} 
+	}
 	//Entrée : L'utilisateur est locataire mais n'a pas spécifié d'appartement
 	else if (strcmp($situationUser, "locataire") == 0 && $appartement == "") {
 		$lesErreurs[] = "Il faut séléctionner un appartement";
@@ -145,32 +145,78 @@ function getErreursSaisieModifInfos($nom, $prenom, $dateNaiss, $mdp, $verifMdp, 
 	if ($prenom == "") {
 		$lesErreurs[] = "Il faut saisir votre prénom.";
 	}
-	if($dateNaiss == ""){
+	if ($dateNaiss == "") {
 		$lesErreurs[] = "Vous devez saisir votre date de naissance.";
 	}
 
 	$mdpEmpty = false;
-	if($mdp == ""){
+	if ($mdp == "") {
 		$mdpEmpty = true;
 	}
 
 	$verifMdpEmpty = false;
-	if($verifMdp == ""){
+	if ($verifMdp == "") {
 		$verifMdpEmpty = true;
 	}
 
 	//Entrée : le champ du mot de passe est saisie mais pas celui de la verification du mot de passe
 	//		OU le champ du mot de pas n'est pas saisie mais celui de la vérification du mot de passe l'est
-	if( 	( !$mdpEmpty &&  $verifMdpEmpty )
-		||	(  $mdpEmpty && !$verifMdpEmpty )
-	){
+	if ((!$mdpEmpty &&  $verifMdpEmpty)
+		||	($mdpEmpty && !$verifMdpEmpty)
+	) {
 		$lesErreurs[] = "Il faut saisir votre mot de passe 2 fois.";
-	} else if (strcmp($mdp, $verifMdp) != 0){
+	} else if (strcmp($mdp, $verifMdp) != 0) {
 		$lesErreurs[] = "Les champs du mot de passe ne correspondent pas.";
 	}
 
-	if($role == ""){
+	if ($role == "") {
 		$lesErreurs[] = "Il faut selectionner le rôle de l'utilisateur";
+	}
+
+	return $lesErreurs;
+}
+
+
+/**
+ * Retourne un tableau d'erreurs de saisie pour la création d'un nouvel immeuble
+ *
+ * @param int $rue Identifiant de la rue de l'immeuble
+ * @param string $immeuble Numéro de l'immeuble à ajouter
+ * @return array $lesErreurs un tableau de chaînes d'erreurs
+ */
+function getErreursSaisieAjoutImmeuble($rue, $immeuble)
+{
+	$lesErreurs = array();
+
+	if ($rue == "") {
+		$lesErreurs[] = "Il faut séléctionner la rue.";
+	}
+	if ($immeuble == "") {
+		$lesErreurs[] = "Il faut saisir le numéro de l'immeuble.";
+	}
+
+	return $lesErreurs;
+}
+
+
+/**
+ * Retourne un tableau d'erreurs de saisie pour la création d'un nouvel appartement
+ *
+ * @param int $immeuble Identifiant de l'immeuble de l'appartement
+ * @return array $lesErreurs un tableau de chaînes d'erreurs
+ */
+function getErreursSaisieAjoutAppartement($immeuble, $typeAppart, $degreSecurite)
+{
+	$lesErreurs = array();
+
+	if ($immeuble == "") {
+		$lesErreurs[] = "Il faut séléctionner l'immeuble'.";
+	}
+	if ($typeAppart == "") {
+		$lesErreurs[] = "Il faut séléctionner le type de l'appartement.";
+	}
+	if ($degreSecurite == "") {
+		$lesErreurs[] = "Il faut séléctionner le degré de sécurité de l'appartement.";
 	}
 
 	return $lesErreurs;

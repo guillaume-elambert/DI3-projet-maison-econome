@@ -114,13 +114,12 @@ Le fichier ["util/sql/3a_di_projet.sql"](util/sql/3a_di_projet.sql) contient le 
     - [x] Gestion possessions
         - [x] Ajouter une possession
         - [x] Supprimer une possession
-- [ ] Actions administrateur
+- [x] Actions administrateur
     - [x] Supprimer un utilisateur
     - [x] Modifier les informations utilisateur
     - [x] Modifier rôle utilisateur
-    - [ ] Ajouter une rue
-    - [ ] Ajouter un bâtiment
-    - [ ] Ajouter un appartement
+    - [x] Ajouter un bâtiment
+    - [x] Ajouter un appartement
 
 <br>
 

@@ -18,7 +18,7 @@ if(isset($_SESSION['admin']) || (isset($_SESSION['user']) && strcmp($_SESSION['u
             unset($_SESSION);
         }
 
-        $message['success'] = "L'utilisateur $mailUtilisateur à bien été supprimé";
+        $message['success'] = "L'utilisateur $mailUtilisateur a bien été supprimé";
     } else {
         $message['erreurs'] = "Une erreur est survenue...";
     }
