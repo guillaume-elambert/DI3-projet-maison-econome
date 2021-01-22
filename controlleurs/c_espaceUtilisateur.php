@@ -10,14 +10,6 @@ if (!isset($_SESSION['user'])) {
         $action = "dashboard";
     }
 
-    /*$actionsImmeubles = array(
-        'Mettre fin' => array(
-            'class'     =>    'action fas fa-times red',
-            'onclick'   =>     'ajaxDateFin(this.closest(\'tr\'));',
-            'title'     =>    'Déclarer mettre fin à la possession'
-        )
-    );*/
-
     switch ($action) {
 
         case 'dashboard':
@@ -36,6 +28,65 @@ if (!isset($_SESSION['user'])) {
             break;
 
 
+        case "ajouter-un-appareil":
+
+
+            //Entrée : la personne à rempli et valider le formulaire
+            if (isset($_POST['immeuble'])) {
+
+                $idImmeuble          = $_POST['immeuble'];
+                $idAppartement       = $_POST['appartement'];
+                $etat                = $_POST['etatAppareil'];
+                $libelleAppareil     = $_POST['nomAppareil'];
+                $idTypeAppareil      = $_POST['typeAppareil'];
+                $idPiece             = $_POST['piece'];
+                $descriptionPosition = $_POST['positionPiece'];
+
+
+                $erreurs = getErreursSaisieAjoutAppareil($libelleAppareil, $idTypeAppareil, $idPiece, $descriptionPosition, $etat, $idImmeuble, $idAppartement);
+
+                if(empty($erreurs)){
+                    if ($pdo->checkUserLocationAppartement($_SESSION['user'], $idImmeuble, $idAppartement)) {
+                        if($pdo->insertAppareil($libelleAppareil, $etat, $idImmeuble, $idAppartement, $idPiece, $idTypeAppareil, $descriptionPosition)){
+                            $success[] = "Appareil enregistré avec succès";
+                            $redirect = "?uc=$uc&action=$action&immeuble=$idImmeuble&appartement=$idAppartement";
+                        } else {
+                            $messages[] = "Une erreur s'est produite...";
+                            $redirect = "?uc=$uc&action=$action";
+                        }
+                    } else {
+                        $messages[] = "Vous n'êtes pas locataire de cet appartement...";
+                        $redirect   = HOME . "?uc=$uc&action=mes-locations-possessions";
+                    }
+                } else {
+                    
+                    $erreurs[] = "Les champs n'ont pas été correctement saisis";
+                    $redirect = "?uc=$uc&action=$action";
+
+                }
+                //TRAIMENT DES DONNEES ENVOYEES PAR LE FORMULAIRE
+            } else {
+
+                //Entrée : si l'identifiant de l'appartement et de l'immeuble ont été passés dans l'URL
+                if (isset($_GET['immeuble']) && isset($_GET['appartement'])) {
+
+                    
+                    $immeuble = $_GET['immeuble'];
+                    $appartement = $_GET['appartement'];
+                    $pieces = $pdo->getPieceInfos($immeuble, $appartement);
+
+                    include("vues/v_formAjoutAppareil.php");
+                    $javascript[] = HOME . 'script/formAppareil.js';
+                    
+                } else {
+                    var_dump($_POST);
+                    $messages[] = "Vous devez sélectionner l'appartement dans la liste de vos locations";
+                    $redirect   = HOME . "?uc=$uc&action=mes-locations-possessions";
+                }
+            }
+            break;
+
+
         case "modifier-mes-infos":
 
             if (isset($_POST['nom'])) {
@@ -47,13 +98,13 @@ if (!isset($_SESSION['user'])) {
                 $mdp        = $_POST['mdp'];
                 $verifMdp   = $_POST['verifMdp'];
 
-                $erreurs = getErreursSaisieModifInfos($nom, $prenom, $dateNaiss, $mdp, $verifMdp, -1);
+                $erreurs = getErreursSaisieModifInfos($nouvMail, $nom, $prenom, $dateNaiss, $mdp, $verifMdp, -1);
 
                 if (empty($erreurs)) {
 
                     if ($pdo->updateUserInfos($_SESSION['user'], $nouvMail, $nom, $dateNaiss, $prenom, $mdp, -1)) {
                         $_SESSION['user'] = $nouvMail;
-                        
+
                         $success[] = "Modifications enregistrées avec succès";
                         $redirect = "?uc=$uc&action=mes-infos";
                     } else {
@@ -61,7 +112,6 @@ if (!isset($_SESSION['user'])) {
                         $redirect = "?uc=$uc&action=$action";
                     }
                 } else {
-                    $setSessionValues = true;
 
                     $erreurs[] = "Les champs n'ont pas été correctement saisis";
                     $redirect = "?uc=$uc&action=$action";
@@ -86,9 +136,14 @@ if (!isset($_SESSION['user'])) {
 
 
 
-        case "mes-locations-posessions":
+        case "mes-locations-possessions":
+            $immeubles = $pdo->getUserPossession($_SESSION['user']);
+            $locations = $pdo->getUserLocInfos($_SESSION['user']);
+
+            include("util/configActionsTable.inc.php");
             include("vues/v_locationsPossessions.php");
-            $javascript[] = HOME . 'script/actionsImmeubles.js';
+            $javascript[] = HOME . 'script/actionsPossessions.js';
+            $javascript[] = HOME . 'script/actionsLocations.js';
             break;
 
 

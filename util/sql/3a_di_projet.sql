@@ -11,7 +11,7 @@ GRANT ALL PRIVILEGES ON `di_3a_projet`.* TO `projet_bdd_3a`@`%`;
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3308
--- Généré le : mer. 20 jan. 2021 à 21:06
+-- Généré le : ven. 22 jan. 2021 à 20:43
 -- Version du serveur :  10.4.11-MariaDB
 -- Version de PHP : 7.3.14
 
@@ -39,7 +39,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `appareil` (
   `idAppareil` int(11) NOT NULL,
   `libelleAppareil` varchar(50) COLLATE utf8_bin DEFAULT NULL,
-  `etat` decimal(1,0) DEFAULT NULL,
+  `etat` tinyint(1) DEFAULT NULL,
   `descriptionPosition` varchar(30) COLLATE utf8_bin DEFAULT NULL,
   `idImmeuble` int(11) NOT NULL,
   `idAppartement` int(11) NOT NULL,
@@ -52,10 +52,13 @@ CREATE TABLE `appareil` (
 --
 
 INSERT INTO `appareil` (`idAppareil`, `libelleAppareil`, `etat`, `descriptionPosition`, `idImmeuble`, `idAppartement`, `idPiece`, `idTypeAppareil`) VALUES
-(1, 'cheminé', '1', 'sur la table basse', 1, 1, 1, 2),
-(2, 'ordinateur', '1', 'sur la table basse', 1, 1, 1, 6),
-(3, 'guitare électrique', '1', 'sur la table basse', 1, 1, 1, 5),
-(4, 'four', '0', 'sur la table basse', 1, 1, 1, 4);
+(1, 'cheminé', 1, 'sur la table basse', 1, 1, 1, 2),
+(2, 'ordinateur', 1, 'sur la table basse', 1, 1, 1, 6),
+(3, 'guitare électrique', 1, 'sur la table basse', 1, 1, 1, 5),
+(4, 'four', 0, 'sur la table basse', 1, 1, 1, 4),
+(5, 'cheminé', 1, 'sur la table basse', 1, 1, 1, 2),
+(6, 'Mon appareil de ouf', 1, 'Une position aléatoire', 1, 1, 1, 6),
+(7, 'gibson les paul', 0, 'près de la fenêtre', 1, 1, 1, 5);
 
 -- --------------------------------------------------------
 
@@ -2901,7 +2904,8 @@ INSERT INTO `appartement` (`idImmeuble`, `idAppartement`, `idDegreSecurite`, `id
 (241, 10, 2, 4),
 (241, 11, 1, 2),
 (241, 12, 1, 1),
-(241, 13, 1, 5);
+(241, 13, 1, 5),
+(5852, 1, 2, 5);
 
 --
 -- Déclencheurs `appartement`
@@ -2943,7 +2947,14 @@ INSERT INTO `consommer` (`libelle`, `idTypeAppareil`, `consommationHoraire`) VAL
 ('bois', 3, '22.00'),
 ('energie gaz', 4, '1850.00'),
 ('energie électrique', 5, '18.00'),
-('energie électrique', 6, '200.00');
+('energie électrique', 6, '20.00'),
+('energie électrique', 9, '20.00'),
+('energie électrique', 10, '20.00'),
+('energie électrique', 11, '21.00'),
+('energie électrique', 12, '19.00'),
+('energie électrique', 13, '18.00'),
+('energie électrique', 14, '18.50'),
+('energie électrique', 15, '18.70');
 
 -- --------------------------------------------------------
 
@@ -8353,7 +8364,6 @@ INSERT INTO `immeuble` (`idImmeuble`, `numeroImmeuble`, `idRue`) VALUES
 (5204, '737', 71),
 (5205, '503', 71),
 (5206, '1056', 71),
-(5207, '999', 71),
 (5208, '914', 71),
 (5209, '1742', 71),
 (5210, '840', 71),
@@ -8978,9 +8988,9 @@ INSERT INTO `immeuble` (`idImmeuble`, `numeroImmeuble`, `idRue`) VALUES
 (5829, '515', 94),
 (5830, '950', 94),
 (5831, '1140', 94),
-(5832, '1471', 94);
+(5832, '1471', 94),
+(5833, '1296', 94);
 INSERT INTO `immeuble` (`idImmeuble`, `numeroImmeuble`, `idRue`) VALUES
-(5833, '1296', 94),
 (5834, '192', 94),
 (5835, '1709', 94),
 (5836, '1022', 94),
@@ -8993,7 +9003,8 @@ INSERT INTO `immeuble` (`idImmeuble`, `numeroImmeuble`, `idRue`) VALUES
 (5843, '1089', 94),
 (5844, '1840', 94),
 (5845, '753', 94),
-(5846, '1454', 94);
+(5846, '1454', 94),
+(5852, '69', 25550);
 
 -- --------------------------------------------------------
 
@@ -9016,7 +9027,9 @@ CREATE TABLE `louer` (
 INSERT INTO `louer` (`idImmeuble`, `idAppartement`, `debutLocation`, `finLocation`, `mail`) VALUES
 (1, 1, '2001-04-24', NULL, 'root1@root.fr'),
 (1, 2, '2000-04-04', NULL, 'root2@root.fr'),
-(3, 1, '2000-03-25', NULL, 'root4@root.fr');
+(1, 17, '2000-04-04', NULL, 'james.bond@gmail.com'),
+(3, 1, '2000-03-25', NULL, 'root4@root.fr'),
+(21, 3, '2002-12-21', NULL, 'oui@oui.fr');
 
 -- --------------------------------------------------------
 
@@ -9075,6 +9088,7 @@ CREATE TABLE `piece` (
 
 INSERT INTO `piece` (`idImmeuble`, `idAppartement`, `idPiece`, `nomPiece`, `idTypePiece`) VALUES
 (1, 1, 1, 'chambre', 1),
+(1, 1, 2, 'salle de bains', 4),
 (1, 2, 1, 'chambre', 1),
 (1, 2, 2, 'chambre', 1),
 (1, 2, 3, 'salon', 2),
@@ -9122,7 +9136,8 @@ INSERT INTO `posseder` (`idImmeuble`, `debutPossession`, `finPossession`, `mail`
 (2, '2001-04-24', NULL, 'root1@root.fr'),
 (3, '2000-04-25', '2021-01-14', 'root4@root.fr'),
 (3, '2020-12-30', NULL, 'root1@root.fr'),
-(5, '2021-01-18', '2021-01-18', 'root1@root.fr');
+(5, '2021-01-18', '2021-01-18', 'root1@root.fr'),
+(3309, '2021-01-10', NULL, 'oui@oui.fr');
 
 -- --------------------------------------------------------
 
@@ -45996,7 +46011,14 @@ INSERT INTO `typeappareil` (`idTypeAppareil`, `libelleTypeAppareil`) VALUES
 (3, 'poêle à bois'),
 (4, 'four au gaz'),
 (5, 'guitare electrique'),
-(6, 'Ordinateur');
+(6, 'Ordinateur'),
+(9, 'ampoule'),
+(10, 'télévision'),
+(11, 'plaque à induction'),
+(12, 'sèche cheveux'),
+(13, 'frigo'),
+(14, 'refrigerateur'),
+(15, 'lave linge');
 
 -- --------------------------------------------------------
 
@@ -46083,11 +46105,13 @@ CREATE TABLE `utilisateur` (
 --
 
 INSERT INTO `utilisateur` (`mail`, `nomUtilisateur`, `prenomUtilisateur`, `dateNaissance`, `motDePasse`, `dateCreation`, `etat`, `idRole`) VALUES
-('root1@root.fr', 'Duplessis', 'Loann', '2001-04-24', '$2y$10$DI9e0otZZEcHQ/NMy09tce025TBFb9XLgytp6scdDBK7h3BwK9Ije', '2021-01-06', NULL, 2),
+('james.bond@gmail.com', 'bond', 'james', '2012-12-12', '$2y$10$AUa3cIp3qMXF.PCCwV.yZeyDr75ynsdf4FUb7GCduKl95EyJgswEe', '2021-01-21', '1', 2),
+('oui@oui.fr', 'Duplessis', 'Loann', '2001-04-24', '$2y$10$vAiVHMIU95/4EDLWtXuXj.JH.dva5kQIXgYpBiZTqimzIairIra7a', '2021-01-21', '1', 2),
+('root1@root.fr', 'Duplessis', 'Louane', '2001-04-24', '$2y$10$DI9e0otZZEcHQ/NMy09tce025TBFb9XLgytp6scdDBK7h3BwK9Ije', '2021-01-06', NULL, 2),
 ('root2@root.fr', 'Poitrineau', 'Paul', '2000-04-04', '$2y$10$DI9e0otZZEcHQ/NMy09tce025TBFb9XLgytp6scdDBK7h3BwK9Ije', '2021-01-06', NULL, 2),
 ('root3@root.fr', 'Page', 'Jimmy', '1944-01-09', '$2y$10$DI9e0otZZEcHQ/NMy09tce025TBFb9XLgytp6scdDBK7h3BwK9Ije', '2021-01-06', NULL, 2),
-('root4@root.fr', 'Elembert', 'Guillaume', '2000-03-25', '$2y$10$DI9e0otZZEcHQ/NMy09tce025TBFb9XLgytp6scdDBK7h3BwK9Ije', '2021-01-06', NULL, 2),
-('root@root.fr', 'caca', 'popo', NULL, '$2y$10$DI9e0otZZEcHQ/NMy09tce025TBFb9XLgytp6scdDBK7h3BwK9Ije', '2021-01-06', NULL, 1);
+('root4@root.fr', 'Elambert', 'Guillaume', '2000-03-25', '$2y$10$DI9e0otZZEcHQ/NMy09tce025TBFb9XLgytp6scdDBK7h3BwK9Ije', '2021-01-06', NULL, 1),
+('root@root.fr', 'ADMINISTRATEUR', 'LE', '2001-04-24', '$2y$10$DI9e0otZZEcHQ/NMy09tce025TBFb9XLgytp6scdDBK7h3BwK9Ije', '2021-01-06', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -83031,7 +83055,7 @@ ALTER TABLE `ville`
 -- AUTO_INCREMENT pour la table `appareil`
 --
 ALTER TABLE `appareil`
-  MODIFY `idAppareil` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `idAppareil` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT pour la table `degresecurite`
@@ -83043,7 +83067,7 @@ ALTER TABLE `degresecurite`
 -- AUTO_INCREMENT pour la table `immeuble`
 --
 ALTER TABLE `immeuble`
-  MODIFY `idImmeuble` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5847;
+  MODIFY `idImmeuble` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5853;
 
 --
 -- AUTO_INCREMENT pour la table `region`
@@ -83067,7 +83091,7 @@ ALTER TABLE `rue`
 -- AUTO_INCREMENT pour la table `typeappareil`
 --
 ALTER TABLE `typeappareil`
-  MODIFY `idTypeAppareil` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `idTypeAppareil` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT pour la table `typeappartement`

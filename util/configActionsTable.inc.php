@@ -1,11 +1,28 @@
 <?php
 
 $actions = array(
-    'immeubles' => array(
+    'possessions' => array(
         'mettreFin' => array(
             'class'     =>    'action fas fa-times red',
-            'onclick'   =>    'ajaxDateFin(this.closest(\'tr\'));',
+            'onclick'   =>    'ajaxDateFinPosession(this.closest(\'tr\'));',
             'title'     =>    'Déclarer mettre fin à la possession'
+        )
+    ),
+    'locations' => array(
+        'ajouterAppareil' => array(
+            'class'     =>    'action fas fa-plus', 
+            'onclick'   =>    'redirectModificationAppareil(this.closest(\'tr\'));',
+            'title'     =>    'Ajouter un appareil à l\'appartement'
+        ),
+        'voirConso' => array(
+            'class'     =>    'action fas fa-chart-pie',
+            'onclick'   =>    'ajaxGetTableConsoAppart(this.closest(\'tr\'));',
+            'title'     =>    'Voir la consommation de l\'appartement'
+        ),
+        'mettreFin' => array(
+            'class'     =>    'action fas fa-times red',
+            'onclick'   =>    'ajaxDateFinLocation(this.closest(\'tr\'));',
+            'title'     =>    'Déclarer mettre fin à la location'
         )
     ),
     'admin' => array(

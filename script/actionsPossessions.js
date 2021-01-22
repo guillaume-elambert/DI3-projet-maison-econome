@@ -1,8 +1,9 @@
-function ajaxDateFin(immeuble) {
+function ajaxDateFinPossession(immeuble) {
 
     var idImmeuble = immeuble.id;
+    var regex = /^immeuble-([0-9]+)/;
 
-    if (/^immeuble-([0-9]+)/.test(idImmeuble) && (idImmeuble = idImmeuble.match(/^immeuble-([0-9]+)/)[1])) {
+    if (regex.test(idImmeuble) && (idImmeuble = idImmeuble.match(regex)[1])) {
         $.ajax({
             url: 'ajax/setDateFinPossession.php',
             type: 'POST',
@@ -27,7 +28,6 @@ function ajaxDateFin(immeuble) {
 
             },
             error: function (request, error) {
-                selectVille.attr('disabled', true);
                 alert("AJAX Call Error: " + error);
             }
         });

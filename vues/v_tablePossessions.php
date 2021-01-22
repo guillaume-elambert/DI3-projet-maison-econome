@@ -4,17 +4,21 @@
             <th>
                 N°
             </th>
+
             <th>
                 Rue
             </th>
+
             <th>
                 CP
             </th>
+
             <th>
                 Ville
             </th>
+
             <?php
-            if(isset($actions) && isset($actions['immeubles'])){
+            if (!empty($immeubles) && isset($actions) && isset($actions['possessions'])) {
                 echo "<th>Actions</th>";
             }
             ?>
@@ -23,39 +27,51 @@
 
     <tbody>
         <?php
-        foreach ($immeubles as $unImmeuble) {
+        if (!empty($immeubles)) {
+            foreach ($immeubles as $unImmeuble) {
         ?>
 
-            <tr id="immeuble-<?php echo $unImmeuble['idImmeuble']; ?>">
-                <td>
-                    <?php echo $unImmeuble['numeroImmeuble']; ?>
-                </td>
-                <td>
-                    <?php echo $unImmeuble['nomRue']; ?>
-                </td>
-                <td>
-                    <?php echo $unImmeuble['cp']; ?>
-                </td>
-                <td>
-                    <?php echo $unImmeuble['nomVille']; ?>
-                </td>
-                <?php
-                if(isset($actions) && isset($actions['immeubles'])){
-                    echo "<td><div class=\"divActions\">";
+                <tr id="immeuble-<?php echo $unImmeuble['idImmeuble']; ?>">
 
-                    foreach($actions['immeubles'] as $nomAction => $attributsAction ){
-                        echo "<a";
-                        foreach($attributsAction as $nomAttribut => $contenuAttribut){
-                            echo " $nomAttribut=\"$contenuAttribut\"";
+                    <td class="centeredText">
+                        <?php echo $unImmeuble['numeroImmeuble']; ?>
+                    </td>
+
+                    <td>
+                        <?php echo $unImmeuble['nomRue']; ?>
+                    </td>
+
+                    <td class="centeredText">
+                        <?php echo $unImmeuble['cp']; ?>
+                    </td>
+
+                    <td>
+                        <?php echo $unImmeuble['nomVille']; ?>
+                    </td>
+
+                    <?php
+                    if (isset($actions) && isset($actions['possessions'])) {
+                        echo "<td><div class=\"divActions\">";
+
+                        foreach ($actions['possessions'] as $nomAction => $attributsAction) {
+                            echo "<a";
+                            foreach ($attributsAction as $nomAttribut => $contenuAttribut) {
+                                echo " $nomAttribut=\"$contenuAttribut\"";
+                            }
+                            echo "></a>";
                         }
-                        echo "></a>";
+                        echo "</div></td>";
                     }
-                    echo "</div></td>";
-                }
-                ?>
-            </tr>
-        <?php 
+                    ?>
+
+                </tr>
+
+        <?php
+            }
+        } else {
+            echo "<tr><td class='centeredText italic' colspan='4'>Vous ne possédez aucun immeuble...</td></tr>";
         }
         ?>
+
     </tbody>
 </table>

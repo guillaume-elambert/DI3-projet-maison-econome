@@ -127,12 +127,12 @@ class PdoProjet3A
 
 			if ($req) {
 
-				$userInfo = $req->fetch();
+				$req = $req->fetch();
 
 				//L'utilisateur existe
-				if ($userInfo) {
-					$mdpBDD = $userInfo['motDePasse'];
-					$role = $userInfo['libelleRole'];
+				if ($req) {
+					$mdpBDD = $req['motDePasse'];
+					$role = $req['libelleRole'];
 
 					//Le mot de passe correspond au mot de passe haché dans la BDD
 					if (password_verify($mdp, $mdpBDD)) {
@@ -353,6 +353,13 @@ class PdoProjet3A
 		return $infosVilles;
 	}
 
+
+	/**
+	 * Fonction qui recherche une/plusieurs villes dans la BDD
+	 * 
+	 * @param string $recherche La chaîne de caractères à chercher
+	 * @return array Le résultat de la requête
+	 */
 	public function chercherVille($recherche)
 	{
 		$toReturn = 1;
@@ -393,6 +400,54 @@ class PdoProjet3A
 		return $toReturn;
 	}
 
+	/**
+	 * Fonction qui recherche un/plusieurs types d'appareil dans la BDD
+	 * 
+	 * @param string $recherche La chaîne de caractères à chercher
+	 * @return array Le résultat de la requête
+	 */
+	public function chercherTypeAppareil($recherche)
+	{
+		$toReturn = 1;
+		$recherche = explode(" ", $recherche);
+
+		if (PdoProjet3A::$monPdo) {
+			$sql = "SELECT * FROM typeappareil 
+			WHERE ";
+
+			$i = 0;
+
+			foreach ($recherche as $elm) {
+				if ($i == 0) {
+					++$i;
+				} else {
+					$sql .= " AND ";
+				}
+
+				$sql .= "(
+					UPPER(libelleTypeAppareil)	 		LIKE UPPER('%$elm%')
+				)";
+			}
+			$sql .= ";";
+			$req = PdoProjet3A::$monPdo->prepare($sql);
+			$req->execute();
+
+			if ($req) {
+				$infosAppareil = $req->fetchAll();
+				$toReturn = $infosAppareil;
+			}
+		}
+
+		return $toReturn;
+	}
+
+	/**
+	 * Fonction qui recherche une/plusieurs rues dans la ville passée en paramètre
+	 * 
+	 * @param int $ville Identifiant de la ville où il faut chercher la/les rues
+	 * @param string $recherche La chaîne de caractères à chercher
+	 * @return array Le résultat de la requête
+	 */
 	public function chercherRueDansVille($ville, $recherche)
 	{
 		$toReturn = 1;
@@ -415,6 +470,14 @@ class PdoProjet3A
 		return $toReturn;
 	}
 
+
+	/**
+	 * Fonction qui recherche un/plusieurs immeubles dans la rue passée en paramètre
+	 * 
+	 * @param int $rue Identifiant de la rue où il faut chercher le/les immeubles
+	 * @param string $recherche La chaîne de caractères à chercher
+	 * @return array Le résultat de la requête
+	 */
 	public function chercherImmeubleDansRue($rue, $recherche)
 	{
 		$toReturn = 1;
@@ -438,6 +501,13 @@ class PdoProjet3A
 	}
 
 
+	/**
+	 * Fonction qui recherche un/plusieurs immeubles qui ne sont possédés par personne dans la rue passée en paramètre
+	 * 
+	 * @param int $rue Identifiant de la rue où il faut chercher le/les immeubles
+	 * @param string $recherche La chaîne de caractères à chercher
+	 * @return array Le résultat de la requête
+	 */
 	public function chercherImmeublesLibresDansRue($rue, $recherche)
 	{
 		$toReturn = 1;
@@ -465,6 +535,14 @@ class PdoProjet3A
 		return $toReturn;
 	}
 
+
+
+	/**
+	 * Fonction qui recherche un/plusieurs appartement qui ne sont loués par personne dans l'immeuble passé en paramètre
+	 * 
+	 * @param int $immeuble Identifiant de la'immeuble où il faut chercher le/les appartement
+	 * @return array Le résultat de la requête
+	 */
 	public function listerAppartementsLibresDansImmeuble($immeuble)
 	{
 		$toReturn = 1;
@@ -491,17 +569,22 @@ class PdoProjet3A
 		return $toReturn;
 	}
 
-
+	/**
+	 * Fonction qui retourne l'ensemble des informations de l'utilisateur
+	 * 
+	 * @param string $mail L'adresse mail (identifiant) de l'utilisateur
+	 * @return array Le résultat de la requète
+	 */
 	public function getUserInfos($mail)
 	{
-		$donneesUser = array();
-		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM utilisateur WHERE mail = '$mail'");
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM utilisateur WHERE mail = '$mail'");
 
-		if ($userInfo) {
-			$donneesUser = $userInfo->fetch();
-			$userInfo->closeCursor();
+		if ($req) {
+			$res = $req->fetch();
+			$req->closeCursor();
 		}
-		return $donneesUser;
+		return $res;
 	}
 
 	public function getRoles()
@@ -517,9 +600,15 @@ class PdoProjet3A
 	}
 
 
+	/**
+	 * Fonction qui retourne l'ensemble des possession de l'utilisateur passé en paramètre
+	 * 
+	 * @param string $mail L'adresse mail (identifiant) de l'utilisateur
+	 * @return array Le résultat de la requête
+	 */
 	public function getUserPossession($mail)
 	{
-		$donneesUser = array();
+		$res = array();
 
 		$sql = "SELECT * FROM posseder
 		NATURAL JOIN immeuble
@@ -528,70 +617,119 @@ class PdoProjet3A
 		WHERE mail = '$mail' 
 		AND finPossession IS NULL;";
 
-		$userInfo = PdoProjet3A::$monPdo->query($sql);
+		$req = PdoProjet3A::$monPdo->query($sql);
 
-		if ($userInfo) {
-			$donneesUser = $userInfo->fetchAll();
-			$userInfo->closeCursor();
+		if ($req) {
+			$res = $req->fetchAll();
+			$req->closeCursor();
 		}
-		return $donneesUser;
+		return $res;
 	}
 
 
+	/**
+	 * Fonction qui retourne l'ensemble des locations de l'utilisateur passé en paramètre
+	 * 
+	 * @param string $mail L'adresse mail (identifiant) de l'utilisateur
+	 * @return array Le résultat de la requête
+	 */
 	public function getUserLocInfos($mail)
 	{
-		$donneesUser = array();
-		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM louer WHERE mail = '$mail' AND finLocation IS NULL");
+		$sql = "SELECT * FROM louer 
+		NATURAL JOIN appartement
+		NATURAL JOIN immeuble 
+		NATURAL JOIN rue 
+		NATURAL JOIN ville
+		WHERE mail = '$mail' AND finLocation IS NULL";
 
-		if ($userInfo) {
-			$donneesUser = $userInfo->fetch();
-			$userInfo->closeCursor();
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query($sql);
+
+		if ($req) {
+			$res = $req->fetchAll();
+			$req->closeCursor();
 		}
-		return $donneesUser;
+		return $res;
 	}
 
 
+
+
+	/**
+	 * Fonction qui retourne l'ensemble des informations de l'immeuble passé en paramètre
+	 * 
+	 * @param int $idImmeuble Identifiant de l'immeuble
+	 * @return array Le résultat de la requête
+	 */
 	public function getInfosImmeuble($idImmeuble)
 	{
-		$donneesUser = array();
-		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM immeuble WHERE idImmeuble = '$idImmeuble'");
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM immeuble WHERE idImmeuble = '$idImmeuble'");
 
-		if ($userInfo) {
-			$donneesUser = $userInfo->fetch();
-			$userInfo->closeCursor();
+		if ($req) {
+			$res = $req->fetch();
+			$req->closeCursor();
 		}
-		return $donneesUser;
+		return $res;
 	}
 
 
+	/**
+	 * Fonction qui retourne l'ensemble des informations de la rue passée en paramètre
+	 * 
+	 * @param int $rue Identifiant de la rue
+	 * @return array Le résultat de la requête
+	 */
 	public function getRueInfos($rue)
 	{
-		$donneesUser = array();
-		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM rue WHERE idRue = '$rue'");
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM rue WHERE idRue = '$rue'");
 
-		if ($userInfo) {
-			$donneesUser = $userInfo->fetch();
-			$userInfo->closeCursor();
+		if ($req) {
+			$res = $req->fetch();
+			$req->closeCursor();
 		}
-		return $donneesUser;
+		return $res;
 	}
 
 
+
+	/**
+	 * Fonction qui retourne l'ensemble des informations de la ville passée en paramètre
+	 * 
+	 * @param int $rue Identifiant de la ville
+	 * @return array Le résultat de la requête
+	 */
 	public function getVilleInfos($ville)
 	{
-		$donneesUser = array();
-		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM ville WHERE idVille = '$ville'");
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM ville WHERE idVille = '$ville'");
 
-		if ($userInfo) {
-			$donneesUser = $userInfo->fetch();
-			$userInfo->closeCursor();
+		if ($req) {
+			$res = $req->fetch();
+			$req->closeCursor();
 		}
-		return $donneesUser;
+		return $res;
 	}
 
+
+
+	/**
+	 * Fonction qui met à jour les informations d'un utilisateur
+	 * 
+	 * @param string $mail Adresse mail (identifiant) actuelle de l'utilisateur
+	 * @param string $nouvMail Nouvelle adresse mail de l'utilisateur
+	 * @param string $nom Nouveau nom de l'utilisateur
+	 * @param date $dateNaiss Nouvelle date de naissance de l'utilisateur
+	 * @param string $prenom Nouveau prénom de l'utilisateur
+	 * @param string $mdp Nouveau mot de passe de l'utilisateur
+	 * @param int $role Identifiant du nouveau rôle de l'utilisateur
+	 * @return boolean Résultat de la requête (true si réussie, false sinon) 
+	 */
 	public function updateUserInfos($mail, $nouvMail, $nom, $dateNaiss, $prenom, $mdp, $role)
 	{
 		$succeeded = true;
+
 		$sql = "UPDATE utilisateur
 		SET nomUtilisateur 		= '$nom',
 			prenomUtilisateur 	= '$prenom',
@@ -613,10 +751,8 @@ class PdoProjet3A
 
 		$statement = PdoProjet3A::$monPdo->prepare($sql);
 
-		if (!$statement->execute()) {
-			$succeeded = false;
-		}
-
+		$succeeded = $statement->execute();
+		
 		return $succeeded;
 	}
 
@@ -703,53 +839,76 @@ class PdoProjet3A
 
 	public function getPieceInfos($immeuble, $appartement)
 	{
-		$donneesUser = array();
-		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM piece WHERE idAppartement = '$appartement' AND idImmeuble=$immeuble");
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM piece WHERE idAppartement = $appartement AND idImmeuble=$immeuble");
 
-		if ($userInfo) {
-			$donneesUser = $userInfo->fetchAll();
-			$userInfo->closeCursor();
+		if ($req) {
+			$res = $req->fetchAll();
+			$req->closeCursor();
 		}
-		return $donneesUser;
+		return $res;
 	}
 
 	public function getApptInfos($immeuble, $appartement)
 	{
-		$donneesUser = array();
-		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM appartement WHERE idAppartement = '$appartement' AND idImmeuble=$immeuble");
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM appartement WHERE idAppartement = $appartement AND idImmeuble=$immeuble");
 
-		if ($userInfo) {
-			$donneesUser = $userInfo->fetch();
-			$userInfo->closeCursor();
+		if ($req) {
+			$res = $req->fetch();
+			$req->closeCursor();
 		}
-		return $donneesUser;
+		return $res;
 	}
 
 
 	public function getAppareilInfos($immeuble, $appartement)
 	{
-		$donneesUser = array();
-		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM appareil WHERE idAppartement = '$appartement' AND idImmeuble=$immeuble");
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM appareil WHERE idAppartement = $appartement AND idImmeuble=$immeuble");
 
-		if ($userInfo) {
-			$donneesUser = $userInfo->fetchAll();
-			$userInfo->closeCursor();
+		if ($req) {
+			$res = $req->fetchAll();
+			$req->closeCursor();
 		}
-		return $donneesUser;
+		return $res;
 	}
 
 
-	public function getConsoInfos($appareil)
+	public function getConsoInfosAppareil($appareil)
 	{
-		$donneesUser = array();
-		$userInfo = PdoProjet3A::$monPdo->query("SELECT * FROM consommer NATURAL JOIN typeenergie NATURAL JOIN substance_energie WHERE idTypeAppareil = $appareil");
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM consommer NATURAL JOIN typeenergie NATURAL JOIN substance_energie WHERE idTypeAppareil = $appareil");
 
-		if ($userInfo) {
-			$donneesUser = $userInfo->fetchAll();
-			$userInfo->closeCursor();
+		if ($req) {
+			$res = $req->fetchAll();
+			$req->closeCursor();
 		}
-		return $donneesUser;
+		return $res;
 	}
+
+	public function getConsoInfosAppartement($immeuble, $appartement)
+	{
+		$sql = ("SELECT *
+		FROM appareil  
+		NATURAL JOIN typeappareil
+		NATURAL JOIN typeenergie 
+		NATURAL JOIN consommer
+		NATURAL JOIN substance_energie 
+		WHERE idAppartement = $appartement
+		AND idImmeuble=$immeuble
+		AND etat = 1;");
+
+		$donnesUser = array();
+		$req = PdoProjet3A::$monPdo->query($sql);
+
+		if ($req) {
+			$res = $req->fetchAll();
+			$req->closeCursor();
+		}
+		return $res;
+	}
+
 
 	public function getConsoAppart($idAppartement)
 	{
@@ -764,21 +923,22 @@ class PdoProjet3A
 		AND idAppartement = 1
 		GROUP BY libelle;";
 
-		$donneesUser = array();
-		$userInfo = PdoProjet3A::$monPdo->query($sql);
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query($sql);
 
-		if ($userInfo) {
-			$donneesUser = $userInfo->fetchAll();
-			$userInfo->closeCursor();
+		if ($req) {
+			$res = $req->fetchAll();
+			$req->closeCursor();
 		}
 
-		return $donneesUser;
+		return $res;
 	}
 
 	/**
 	 * Fonction qui vérifie si un immeuble appartient bien à un utilisateur
+	 * 
 	 * @param string $mailUtilisateur Mail de l'utilisateur
-	 * @param int $idAppartement Identifiant de l'appartement
+	 * @param int $idImmeuble Identifiant de l'immeuble
 	 * @return boolean $toReturn : true si l'immeuble appartient à l'utilisateur, false sinon
 	 */
 	public function checkUserPossedeImmeuble($mailUtilisateur, $idImmeuble)
@@ -805,7 +965,7 @@ class PdoProjet3A
 	 * appartiennant à un utilisateur
 	 * 
 	 * @param string $mailUtilisateur Mail de l'utilisateur
-	 * @param int $idAppartement Identifiant de l'appartement
+	 * @param int $idImmeuble Identifiant de l'immeuble
 	 * @return boolean $toReturn : true en cas de succès
 	 */
 	public function setFinPossession($mailUtilisateur, $idImmeuble)
@@ -824,5 +984,89 @@ class PdoProjet3A
 		}
 
 		return $toReturn;
+	}
+
+
+	/**
+	 * Fonction qui vérifie si un appartement appartient bien à un utilisateur
+	 * 
+	 * @param string $mailUtilisateur Mail de l'utilisateur
+	 * @param int $idImmeuble Identifiant de l'immeuble de l'appartement
+	 * @param int $idAppartement Identifiant de l'appartement par rapport à l'immeuble
+	 * @return boolean $toReturn : true si l'immeuble appartient à l'utilisateur, false sinon
+	 */
+	public function checkUserLocationAppartement($mailUtilisateur, $idImmeuble, $idAppartement)
+	{
+		$sql = "SELECT * FROM louer
+		WHERE mail = '$mailUtilisateur'
+		AND idImmeuble = $idImmeuble
+		AND idAppartement = $idAppartement
+		AND finLocation IS NULL;";
+
+		$toReturn = false;
+		$req = PdoProjet3A::$monPdo->query($sql);
+
+		if ($req) {
+			if (!empty($req->fetch())) {
+				$toReturn = true;
+			}
+		}
+
+		return $toReturn;
+	}
+
+	/**
+	 * Fonction qui modifie la date de fin de location d'un appartement d'un utilisateur
+	 * 
+	 * @param string $mailUtilisateur Mail de l'utilisateur
+	 * @param int $idImmeuble Identifiant de l'immeuble de l'appartement
+	 * @param int $idAppartement Identifiant de l'appartement par rapport à l'immeuble
+	 * @return boolean $toReturn : true en cas de succès
+	 */
+	public function setFinLocation($mailUtilisateur, $idImmeuble, $idAppartement)
+	{
+		$sql = "UPDATE louer
+		SET finLocation = CURRENT_DATE
+		WHERE mail = '$mailUtilisateur'
+		AND idImmeuble = $idImmeuble
+		AND idAppartement = $idAppartement
+		AND finLocation IS NULL;";
+
+		$toReturn = false;
+		$statement = PdoProjet3A::$monPdo->prepare($sql);
+
+		if ($statement->execute()) {
+			$toReturn = true;
+		}
+
+		return $toReturn;
+	}
+
+	/**
+	 * Fonction qui ajoute un appareil dans la BDD
+	 * 
+	 * @param string $libelleAppareil Libelle de l'appareil nom de l'appareil
+	 * @param boolean $etat Etat de l'appareil (1=allumé, 0=éteint) allumé ou éteint
+	 * @param int $idImmeuble Identifiant de l'immeuble de l'appartement de la pièce
+	 * @param int $idAppartement Identifiant de l'appartement de la pièce
+	 * @param int $idPiece Identifiant de la piece de l'appartement
+	 * @param int $idTypeAppareil Identifiant du type d'appareil
+	 * @param string $descriptionPosition Position de l'appareil dans la piece
+	 * 
+	 * @author Loann ^^
+	 */
+	public function insertAppareil($libelleAppareil, $etat, $idImmeuble, $idAppartement, $idPiece, $idTypeAppareil, $descriptionPosition)
+	{
+		$res = false;
+
+		$sql = "INSERT INTO appareil 
+			   (libelleAppareil,    etat,   descriptionPosition,  idImmeuble,   idAppartement,  idPiece,  idTypeAppareil) 
+		VALUES ('$libelleAppareil', $etat, '$descriptionPosition', $idImmeuble, $idAppartement, $idPiece, $idTypeAppareil);";
+
+		$statement = PdoProjet3A::$monPdo->prepare($sql);
+
+		$res = $statement->execute();
+
+		return $res;
 	}
 }

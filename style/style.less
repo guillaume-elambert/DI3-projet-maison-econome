@@ -52,7 +52,7 @@ body {
 }
 
 #content {
-    width: 80%;
+    width: 85%;
     margin: auto;
     margin-bottom: 5%;
 }
@@ -69,6 +69,10 @@ form,
         border-spacing: 15px 15px;
     }
 
+    .hidden {
+        display: none;
+    }
+
     .champ {
 
         h4 {
@@ -80,7 +84,7 @@ form,
         }
 
         select,
-        input {
+        input:not([type=radio]) {
             width: -webkit-fill-available;
         }
     }
@@ -324,7 +328,9 @@ form,
 .flotte {
     float: left;
 }
-
+/*****************************/
+/*        STYLE TABLE        */
+/*****************************/
 .niceLookingTable {
     min-width: 500px;
     border-collapse: collapse;
@@ -369,19 +375,21 @@ form,
             }
         }
     }
-}
 
-#consomationEnergie {
-    margin: auto;
-    border-spacing: 0 0;
+    .centeredText {
+        text-align: center;
+    }
 
-    td,
-    th {
-
-        border: 2px double black;
+    .italic {
+        font-style: italic;
+        color: rgba(0, 0, 0, 0.5);
     }
 }
 
+
+/***************************************************/
+/*        STYLE ACTIONS (DANS LES TABLEAUX)        */
+/***************************************************/
 .divActions {
     display: flex;
     justify-content: space-around;
@@ -389,7 +397,13 @@ form,
 
 .action {
     cursor: pointer;
+    margin-left: 10%;
+    margin-right: 10%;
 }
+
+/*********************************/
+/*        STYLE DASHBOARD        */
+/*********************************/
 
 .dashboard {
     width: 80%;
@@ -433,6 +447,11 @@ fieldset h3 {
     margin: 0;
 }
 
+
+
+/***************************************/
+/*        STYLE INPUT RECHERCHE        */
+/***************************************/
 .search {
     width: 100%;
     display: flex;
@@ -464,10 +483,75 @@ fieldset h3 {
     }
 }
 
-#divRechercheUtilisateur{
+#divRechercheUtilisateur {
     width: fit-content;
 
     .search {
-        margin-bottom : 3%;
+        margin-bottom: 3%;
     }
+}
+
+
+
+/*****************************/
+/*        STYLE POPUP        */
+/*****************************/
+.overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    transition: opacity 500ms;
+    visibility: hidden;
+    opacity: 0;
+
+    h2 {
+        margin-top: 0;
+        color: #333;
+        font-family: Tahoma, Arial, sans-serif;
+    }
+
+    .popup {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-right: -50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        background: #fff;
+        border-radius: 5px;
+        width: fit-content;
+        height: fit-content;
+        position: relative;
+        transition: all 1s ease-in-out;
+
+        .close {
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            transition: all 200ms;
+            font-size: 30px;
+            font-weight: bold;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .close:hover {
+            color: red;
+        }
+
+        .popup-content {
+            max-height: 30%;
+            overflow: auto;
+        }
+    }
+
 }

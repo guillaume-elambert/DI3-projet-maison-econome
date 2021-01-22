@@ -35,7 +35,7 @@ if (!isset($_SESSION['user'])) {
                 $mdp        = $_POST['mdp'];
                 $verifMdp   = $_POST['verifMdp'];
 
-                $erreurs = getErreursSaisieModifInfos($nom, $prenom, $dateNaiss, $mdp, $verifMdp, $role);
+                $erreurs = getErreursSaisieModifInfos($nouvMail, $nom, $prenom, $dateNaiss, $mdp, $verifMdp, $role);
 
                 if (empty($erreurs)) {
 

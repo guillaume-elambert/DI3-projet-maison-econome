@@ -64,19 +64,29 @@ Le fichier ["util/configActionsTable.inc.php"](util/configActionsTable.inc.php) 
 #### 2.2.1. Template
 ~~~php
 $actions = array(
-    'immeubles' => array(
+    'possessions' => array(
         'actionIndex1-1' => array(
-            'class'     =>    'a-pretty class',
-            'onclick'   =>    'callAwesomeFunction(this);',
-            'title'     =>    'This is a title'
+            'class'         =>    'a-pretty class',
+            'onclick'       =>    'callAwesomeFunction(this);',
+            'title'         =>    'This is a title'
         )
     ),
+    'locations' => array(
+        'actionIndex3-1' => array(
+            'attribute1'    =>    'something1',
+        ),
+        'voirConso' => array(
+            'attribute2'    =>    'whatYouWant',
+            'attribute3'    =>    'theValueOfAttribute3',
+            'attribute4'    =>    'itCanBeAnythingAndEverything'
+        ),
+    ),
     'admin' => array(
-        'actionIndex2-1' => array(
-            'id'        =>    'myObject',
-            'class'     =>    'an-really cool-class',
-            'onclick'   =>    'alert("You clicked on object "+$this.id)',
-            'title'     =>    'Alert object\'s id'
+        'actionIndex3-1' => array(
+            'id'            =>    'myObject',
+            'class'         =>    'an-really cool-class',
+            'onclick'       =>    'alert("You clicked on object "+$this.id)',
+            'title'         =>    'Alert object\'s id'
         )
     )
 );
@@ -108,9 +118,11 @@ Le fichier ["util/sql/3a_di_projet.sql"](util/sql/3a_di_projet.sql) contient le 
     - [x] Modifier les informations
     - [ ] Gestion Locations
         - [x] Ajouter une location
-        - [ ] Supprimer une location
-        - [ ] Afficher la consommation de l'appartement
-        - [ ] Ajouter des appareils
+        - [x] Supprimer une location
+        - [x] Afficher la consommation de l'appartement
+        - [ ] Afficher la liste des appareils
+        - [x] Ajouter des appareils
+        - [ ] Supprimer des appareils
     - [x] Gestion possessions
         - [x] Ajouter une possession
         - [x] Supprimer une possession

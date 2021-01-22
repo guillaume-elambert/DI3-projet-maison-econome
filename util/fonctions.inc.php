@@ -135,9 +135,13 @@ function getErreursSaisieAjoutLocPoss($ville, $rue, $immeuble, $appartement, $si
  * @param int $roel Identifiant du rôle de l'utilisateur
  * @return array $lesErreurs un tableau de chaînes d'erreurs
  */
-function getErreursSaisieModifInfos($nom, $prenom, $dateNaiss, $mdp, $verifMdp, $role)
+function getErreursSaisieModifInfos($mail, $nom, $prenom, $dateNaiss, $mdp, $verifMdp, $role)
 {
 	$lesErreurs = array();
+
+	if (!estUnMail($mail)) {
+		$lesErreurs[] =  "Erreur de mail";
+	}
 
 	if ($nom == "") {
 		$lesErreurs[] = "Il faut saisir votre nom.";
@@ -250,4 +254,45 @@ function creerImage()
 	}
 
 	return $exec;
+}
+
+
+/**
+ * Retourne un tableau d'erreurs de saisie pour la création d'un nouvel utilisateur
+ *
+ * @param string $libelleAppareil nom de l'appareil
+ * @param int $idTypeAppareil Identifiant de l'appareil
+ * @param int $idPiece Identifiant de la pièce
+ * @param string $descriptionPosition description de la position de l'objet dans la pièce
+ * @param bool $etat si l'appareil est allumé ou non 
+ * @param int $idImmeuble identifiant de l'immeuble
+ * @param int $idAppartement identifiant de l'appartement
+ * @return array $lesErreurs un tableau de chaînes d'erreurs
+ */
+function getErreursSaisieAjoutAppareil($libelleAppareil, $idTypeAppareil, $idPiece, $descriptionPosition, $etat, $idImmeuble, $idAppartement)
+{
+	$lesErreurs = array();
+	if ($libelleAppareil == "") {
+		$lesErreurs[] = "Il faut entrer un nom pour votre appareil";
+	}
+	if ($idTypeAppareil == "") {
+		$lesErreurs[] = "Il faut sélectionner un type à votre appareil";
+	}
+	if ($idPiece == "") {
+		$lesErreurs[] = "Il faut sélectionner une pièce de votre appartement";
+	}
+	if ($descriptionPosition == "") {
+		$lesErreurs[] = "Il faut saisir une position pour votre appareil";
+	}
+	//l'état doit être égal à 1 ou 0
+	if ($etat != 1 && $etat != 0) {
+		$lesErreurs[] = "Il faut sélectionner un état pour votre appareil";
+	}
+	if ($idImmeuble == "") {
+		$lesErreurs[] = "L'idImmeuble est vide";
+	}
+	if ($idAppartement == "") {
+		$lesErreurs[] = "L'idAppartement est vide";
+	}
+	return $lesErreurs;
 }
