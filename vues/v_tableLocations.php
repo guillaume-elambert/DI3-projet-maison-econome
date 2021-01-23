@@ -22,8 +22,10 @@
             </th>
 
             <?php
+            $nbCol = 5;
             if (!empty($locations) && isset($actions) && isset($actions['locations'])) {
                 echo "<th>Actions</th>";
+                ++$nbCol;
             }
             ?>
 
@@ -78,7 +80,7 @@
         <?php
             }
         } else {
-            echo "<tr><td class='centeredText italic' colspan='5'>Vous ne louez aucun appartement...</td></tr>";
+            echo "<tr><td class='centeredText italic' colspan='$nbCol'>Vous ne louez aucun appartement...</td></tr>";
         }
         ?>
 

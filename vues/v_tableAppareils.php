@@ -22,8 +22,10 @@
             </th>
 
             <?php
+            $nbCol = 5;
             if (!empty($appareils) && isset($actions) && isset($actions['appareils'])) {
                 echo "<th>Actions</th>";
+                ++$nbCol;
             }
             ?>
 
@@ -36,7 +38,7 @@
             foreach ($appareils as $unAppareil) {
         ?>
 
-                <tr id="<?php echo "appareil-".$unAppareil['idAppareil']; ?>">
+                <tr id="<?php echo "immeuble-". $unAppareil['idImmeuble'] . "-appartement-" . $unAppareil['idAppartement'] . "-piece-" . $unAppareil['idPiece'] . "-appareil-" . $unAppareil['idAppareil']; ?>" state="<?php echo $unAppareil['etat']; ?>">
 
                     <td>
                         <?php echo $unAppareil['libelleAppareil']; ?>
@@ -54,7 +56,7 @@
                         <?php echo $unAppareil['descriptionPosition']; ?>
                     </td>
 
-                    <td>
+                    <td class="state">
                         <?php echo $unAppareil['etat']==1 ? "Allumé" : "Éteint"; ?>
                     </td>
 
@@ -79,7 +81,7 @@
         <?php
             }
         } else {
-            echo "<tr><td class='centeredText italic' colspan='5'>Vous ne louez aucun appartement...</td></tr>";
+            echo "<tr><td class='centeredText italic' colspan='$nbCol'>$printIfEmpty</td></tr>";
         }
         ?>
 

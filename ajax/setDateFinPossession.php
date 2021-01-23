@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once("../util/config.php");
-require_once("../util/class.PdoProjet3A.inc.php");
+require_once("util/class.PdoProjet3A.inc.php");
 $pdo = PdoProjet3A::getPdo();
 
 $messages = array();

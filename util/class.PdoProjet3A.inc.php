@@ -87,7 +87,7 @@ class PdoProjet3A
 
 
 	/**
-	 * destructeur
+	 * Destructeur
 	 */
 	public function _destruct()
 	{
@@ -335,7 +335,9 @@ class PdoProjet3A
 		return $infosUtilisateurs;
 	}
 
-
+	/**
+	 * Fonction qui retourne toutes les villes
+	 */
 	public function getVilles()
 	{
 		$infosVilles = array();
@@ -587,6 +589,9 @@ class PdoProjet3A
 		return $res;
 	}
 
+	/**
+	 * Fonction qui retourne tous les rôles utilisateur
+	 */
 	public function getRoles()
 	{
 		$infosRoles = array();
@@ -752,7 +757,7 @@ class PdoProjet3A
 		$statement = PdoProjet3A::$monPdo->prepare($sql);
 
 		$succeeded = $statement->execute();
-		
+
 		return $succeeded;
 	}
 
@@ -786,8 +791,6 @@ class PdoProjet3A
 	 */
 	public function insertAppartement($idImmeuble, $idTypeAppart, $degreSecurite)
 	{
-		$res = false;
-
 		$sql = "INSERT INTO appartement (idImmeuble, idDegreSecurite, idTypeAppart) VALUES ($idImmeuble, $degreSecurite, $idTypeAppart);";
 
 		$statement = PdoProjet3A::$monPdo->prepare($sql);
@@ -797,6 +800,26 @@ class PdoProjet3A
 		return $res;
 	}
 
+	/**
+	 * @param int $idImmeuble Identifiant de l'immeuble de l'appartement
+	 * @param int $degreSecurite Identifiant du degré de sécurité de l'appartement
+	 * @param int $idTypeAppart Identifiant du type de l'appartement
+	 * @return boolean Renvoie true si la requête à réussi, false sinon
+	 */
+	public function insertPiece($idImmeuble, $idAppartement, $nomPiece, $idTypePiece)
+	{
+		$sql = "INSERT INTO piece (idImmeuble, idAppartement, nomPiece, idTypePiece) VALUES ($idImmeuble, $idAppartement, '$nomPiece', $idTypePiece);";
+
+		$statement = PdoProjet3A::$monPdo->prepare($sql);
+
+		$res = $statement->execute();
+
+		return $res;
+	}
+
+	/**
+	 * Fonction qui retourne l'ensemble des degré de sécurité
+	 */
 	public function getDegresSecurite()
 	{
 		$res = array();
@@ -811,6 +834,9 @@ class PdoProjet3A
 	}
 
 
+	/**
+	 * Fonction qui retourne l'ensemble des type d'appartement
+	 */
 	public function getTypesAppartement()
 	{
 		$res = array();
@@ -824,7 +850,51 @@ class PdoProjet3A
 		return $res;
 	}
 
-	public function getImmeuble()
+	/**
+	 * Fonction qui retourne l'ensemble des appartements n'ayant pas de pièces
+	 */
+	public function getAppartsSansPiece(){
+		$sql = "SELECT a.*
+		FROM appartement a
+		LEFT JOIN piece p
+		ON  a.idImmeuble = p.idImmeuble
+		AND a.idAppartement = p.idAppartement
+		WHERE idPiece IS NULL;";
+
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query($sql);
+
+		if ($req) {
+			$res = $req->fetchAll();
+			$req->closeCursor();
+		}
+
+		return $res;
+
+	}
+
+
+	/**
+	 * Fonction qui retourne l'ensemble des type d'appartement
+	 */
+	public function getTypesPiece()
+	{
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM typepiece");
+
+		if ($req) {
+			$res = $req->fetchAll();
+			$req->closeCursor();
+		}
+
+		return $res;
+	}
+
+
+	/**
+	 * Fonction qui retourne l'ensemble des immeubles
+	 */
+	public function getImmeubles()
 	{
 		$res = array();
 		$req = PdoProjet3A::$monPdo->query("SELECT * FROM immeuble");
@@ -837,7 +907,32 @@ class PdoProjet3A
 		return $res;
 	}
 
-	public function getPieceInfos($immeuble, $appartement)
+	/**
+	 * Fonction qui retourne l'ensemble des immeubles
+	 */
+	public function getApparts($immeuble)
+	{
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM appartement WHERE idImmeuble = $immeuble");
+
+		if ($req) {
+			$res = $req->fetchAll();
+			$req->closeCursor();
+		}
+
+		return $res;
+	}
+
+
+	/**
+	 * Fonction qui récupère le nom et le type de toutes les pièces 'un appartement
+	 * 
+	 * @param int $immeuble L'identifiant de l'immeuble
+	 * @param int $appartement L'identifiant de l'appartement
+	 * 
+	 * @return array le résultat de la recherche
+	 */
+	public function getPiecesAppart($immeuble, $appartement)
 	{
 		$res = array();
 		$req = PdoProjet3A::$monPdo->query("SELECT * FROM piece WHERE idAppartement = $appartement AND idImmeuble=$immeuble");
@@ -849,10 +944,19 @@ class PdoProjet3A
 		return $res;
 	}
 
+	/**
+	 * Fonction qui récupère toutes le degré de sécurité et le type d'un appartement
+	 * 
+	 * @param int $immeuble L'identifiant de l'immeuble
+	 * @param int $appartement L'identifiant de l'appartement
+	 * 
+	 * @return array le résultat de la recherche
+	 * 
+	 */
 	public function getApptInfos($immeuble, $appartement)
 	{
 		$res = array();
-		$req = PdoProjet3A::$monPdo->query("SELECT * FROM appartement WHERE idAppartement = $appartement AND idImmeuble=$immeuble");
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM appartement WHERE idAppartement = $appartement AND idImmeuble=$immeuble;");
 
 		if ($req) {
 			$res = $req->fetch();
@@ -861,11 +965,25 @@ class PdoProjet3A
 		return $res;
 	}
 
-
-	public function getAppareilInfos($immeuble, $appartement)
+	/**
+	 * Fonction qui retourne l'ensemble des appareils d'une appartement
+	 * 
+	 * @param int $immeuble Identifiant de l'immeuble de l'appartement
+	 * @param int $appartement Identifiant de l'appartement
+	 * @return array Le résulat de la requête
+	 */
+	public function getAppareilsAppart($immeuble, $appartement)
 	{
+		$sql = "SELECT * 
+		FROM appareil 
+		NATURAL JOIN typeappareil 
+		NATURAL JOIN piece 
+		WHERE idAppartement = $appartement 
+		AND idImmeuble=$immeuble
+		ORDER BY idPiece, libelleAppareil ASC;";
+
 		$res = array();
-		$req = PdoProjet3A::$monPdo->query("SELECT * FROM appareil NATURAL JOIN typeappareil NATURAL JOIN piece WHERE idAppartement = $appartement AND idImmeuble=$immeuble");
+		$req = PdoProjet3A::$monPdo->query($sql);
 
 		if ($req) {
 			$res = $req->fetchAll();
@@ -874,11 +992,54 @@ class PdoProjet3A
 		return $res;
 	}
 
+	/**
+	 * Fonction qui retourne l'ensemble des appareils d'une pièce d'un appartement
+	 * 
+	 * @param int $immeuble Identifiant de l'immeuble de l'appartement
+	 * @param int $appartement Identifiant de l'appartement
+	 * @param int $piece Identifiant de la pièce
+	 * @return array Le résulat de la requête
+	 */
+	public function getAppareilsPiece($immeuble, $appartement, $piece)
+	{
+		$sql = "SELECT * 
+		FROM appareil 
+		NATURAL JOIN typeappareil 
+		NATURAL JOIN piece 
+		WHERE idAppartement = $appartement 
+		AND idImmeuble = $immeuble
+		AND idPiece = $piece
+		ORDER BY libelleAppareil ASC;";
+
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query($sql);
+
+		if ($req) {
+			$res = $req->fetchAll();
+			$req->closeCursor();
+		}
+		return $res;
+	}
+
+	/**
+	 * Fonction qui récupère toute les informations d'un appareil
+	 * 
+	 * @param int $appareil L'identifiant de l'appareil
+	 * 
+	 * @return array Le résultat de la recherche
+	 * 
+	 */
 
 	public function getConsoInfosAppareil($appareil)
 	{
+		$sql = "SELECT *
+		FROM consommer
+		NATURAL JOIN typeenergie
+		NATURAL JOIN substance_energie
+		WHERE idTypeAppareil = $appareil";
+
 		$res = array();
-		$req = PdoProjet3A::$monPdo->query("SELECT * FROM consommer NATURAL JOIN typeenergie NATURAL JOIN substance_energie WHERE idTypeAppareil = $appareil");
+		$req = PdoProjet3A::$monPdo->query($sql);
 
 		if ($req) {
 			$res = $req->fetchAll();
@@ -886,7 +1047,15 @@ class PdoProjet3A
 		}
 		return $res;
 	}
-
+	/**
+	 * Fonction qui récupere toute les informations de chaque appareil allumé d'un appartement
+	 * 
+	 * @param int $immeuble l'identifiant de l'immeuble
+	 * @param int $appartement l'identifiant de l'appartement
+	 * 
+	 * @return array le résultat de la requète 
+	 * 
+	 */
 	public function getConsoInfosAppartement($immeuble, $appartement)
 	{
 		$sql = ("SELECT *
@@ -899,7 +1068,6 @@ class PdoProjet3A
 		AND idImmeuble=$immeuble
 		AND etat = 1;");
 
-		$donnesUser = array();
 		$req = PdoProjet3A::$monPdo->query($sql);
 
 		if ($req) {
@@ -909,7 +1077,15 @@ class PdoProjet3A
 		return $res;
 	}
 
-
+	/**
+	 * Fonction qui récupère la consommation horaire de chaque appareil
+	 * d'un appartement
+	 * 
+	 * @param int $idAppartement L'identifiant de l'appartement
+	 * 
+	 * @return array le resultat de la recherche
+	 * 
+	 */
 	public function getConsoAppart($idAppartement)
 	{
 		$sql = "SELECT se.libelle, SUM(c.consommationHoraire) AS 'consommation' FROM appartement
@@ -920,7 +1096,7 @@ class PdoProjet3A
 		NATURAL JOIN typeenergie
 		NATURAL JOIN substance_energie se
 		WHERE etat = 1
-		AND idAppartement = 1
+		AND idAppartement = $idAppartement
 		GROUP BY libelle;";
 
 		$res = array();
@@ -1035,9 +1211,7 @@ class PdoProjet3A
 		$toReturn = false;
 		$statement = PdoProjet3A::$monPdo->prepare($sql);
 
-		if ($statement->execute()) {
-			$toReturn = true;
-		}
+		$toReturn = $statement->execute();
 
 		return $toReturn;
 	}
@@ -1062,6 +1236,146 @@ class PdoProjet3A
 		$sql = "INSERT INTO appareil 
 			   (libelleAppareil,    etat,   descriptionPosition,  idImmeuble,   idAppartement,  idPiece,  idTypeAppareil) 
 		VALUES ('$libelleAppareil', $etat, '$descriptionPosition', $idImmeuble, $idAppartement, $idPiece, $idTypeAppareil);";
+
+		$statement = PdoProjet3A::$monPdo->prepare($sql);
+
+		$res = $statement->execute();
+
+		return $res;
+	}
+
+	/**
+	 * Fonction qui insert un nouvel enregistrement dans la table `historiquefonctionnement`
+	 * 
+	 * @param int $idImmeuble L'identifiant de l'immeuble de l'appartement
+	 * @param int $idAppartement L'identifiant de l'appartement
+	 * @param int $idPiece L'identifiant de la pièce où se trouve l'appareil
+	 * @param int $idAppareil L'identifiant de l'appareil
+	 * @return boolean True si la requête à réussie, false sinon
+	 */
+	public function insertHistoriqueFonctionnement($idImmeuble, $idAppartement, $idPiece, $idAppareil)
+	{
+		$res = false;
+
+		$sql = "INSERT INTO historiquefonctionnement 
+			   (idImmeuble,  idAppartement,  idPiece,  idAppareil, debutFonctionnement)
+		VALUES ($idImmeuble, $idAppartement, $idPiece, $idAppareil, NOW());";
+
+		$statement = PdoProjet3A::$monPdo->prepare($sql);
+
+		$res = $statement->execute();
+
+		return $res;
+	}
+
+
+	/**
+	 * Fonction qui change l'état d'un appareil
+	 * 
+	 * @param int $idImmeuble L'identifiant de l'immeuble de l'appartement
+	 * @param int $idAppartement L'identifiant de l'appartement
+	 * @param int $idPiece L'identifiant de la pièce où se trouve l'appareil
+	 * @param int $idAppareil L'identifiant de l'appareil
+	 * @param boolean $etat Le nouvel état de l'appareil (ture=allumé, false sinon)
+	 * @return boolean True si la requête à réussie, false sinon
+	 */
+	public function updateEtatAppareil($idImmeuble, $idAppartement, $idPiece, $idAppareil, $etat)
+	{
+		$sql = "UPDATE appareil
+		SET etat = $etat
+		WHERE idImmeuble = $idImmeuble
+		AND idAppartement = $idAppartement
+		AND idPiece = $idPiece
+		AND idAppareil = $idAppareil;";
+
+		$statement = PdoProjet3A::$monPdo->prepare($sql);
+
+		$res = $statement->execute();
+
+		return $res;
+	}
+
+	/**
+	 * Fonction qui supprime un appareil
+	 * 
+	 * @param int $idImmeuble L'identifiant de l'immeuble de l'appartement
+	 * @param int $idAppartement L'identifiant de l'appartement
+	 * @param int $idPiece L'identifiant de la pièce où se trouve l'appareil
+	 * @param int $idAppareil L'identifiant de l'appareil
+	 * @return boolean True si la requête à réussie, false sinon
+	 */
+	public function deleteAppareil($idImmeuble, $idAppartement, $idPiece, $idAppareil)
+	{
+		$sql = "DELETE FROM appareil
+		WHERE idImmeuble = $idImmeuble
+		AND idAppartement = $idAppartement
+		AND idPiece = $idPiece
+		AND idAppareil = $idAppareil;";
+
+		$statement = PdoProjet3A::$monPdo->prepare($sql);
+
+		$res = $statement->execute();
+
+		return $res;
+	}
+
+	/**
+	 * Fonction qui retourne les infosmations d'un appareil
+	 * 
+	 * @param int $idImmeuble L'identifiant de l'immeuble de l'appartement
+	 * @param int $idAppartement L'identifiant de l'appartement
+	 * @param int $idPiece L'identifiant de la pièce où se trouve l'appareil
+	 * @param int $idAppareil L'identifiant de l'appareil
+	 * @return array Le résultat de la requête
+	 */
+	public function getInfosAppareil($idImmeuble, $idAppartement, $idPiece, $idAppareil)
+	{
+		$sql = "SELECT *
+		FROM appareil
+		WHERE idImmeuble = $idImmeuble
+		AND idAppartement = $idAppartement
+		AND idPiece = $idPiece
+		AND idAppareil = $idAppareil;";
+
+		$res = array();
+		$req = PdoProjet3A::$monPdo->query($sql);
+
+		if ($req) {
+			$res = $req->fetch();
+			$req->closeCursor();
+		}
+
+		return $res;
+	}
+
+
+	/**
+	 * Fonction qui ajoute un appareil dans la BDD
+	 * 
+	 * @param int $idImmeuble Identifiant de l'immeuble de l'appartement de la pièce
+	 * @param int $idAppartement Identifiant de l'appartement de la pièce
+	 * @param int $idPiece Identifiant de la piece de l'appartement
+	 * @param int $idAppareil Identifiant de l'appareil à modifier
+	 * @param string $libelleAppareil Libelle de l'appareil nom de l'appareil
+	 * @param boolean $etat Etat de l'appareil (1=allumé, 0=éteint) allumé ou éteint
+	 * @param int $idTypeAppareil Identifiant du type d'appareil
+	 * @param string $descriptionPosition Position de l'appareil dans la piece
+	 * 
+	 * @author Loann ^^
+	 */
+	public function updateAppareil($idImmeuble, $idAppartement, $idPiece, $idAppareil, $libelleAppareil, $etat, $idTypeAppareil, $descriptionPosition)
+	{
+		$res = false;
+
+		$sql = "UPDATE appareil 
+		SET libelleAppareil = '$libelleAppareil',
+		    etat = $etat,
+			descriptionPosition = '$descriptionPosition',
+			idTypeAppareil = $idTypeAppareil
+		WHERE idImmeuble = $idImmeuble
+		AND idAppartement = $idAppartement
+		AND idPiece = $idPiece
+		AND idAppareil = $idAppareil;";
 
 		$statement = PdoProjet3A::$monPdo->prepare($sql);
 

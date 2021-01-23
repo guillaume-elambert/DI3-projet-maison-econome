@@ -4,7 +4,7 @@ $actions = array(
     'possessions' => array(
         'mettreFin' => array(
             'class'     =>    'action fas fa-times red',
-            'onclick'   =>    'ajaxDateFinPosession(this.closest(\'tr\'));',
+            'onclick'   =>    'ajaxDateFinPossession(this.closest(\'tr\'));',
             'title'     =>    'Déclarer mettre fin à la possession'
         )
     ),
@@ -16,7 +16,7 @@ $actions = array(
         ),
         'ajouterAppareil' => array(
             'class'     =>    'action fas fa-plus',
-            'onclick'   =>    'redirectModificationAppareil(this.closest(\'tr\'));',
+            'onclick'   =>    'redirectAjoutAppareil(this.closest(\'tr\'));',
             'title'     =>    'Ajouter un appareil à l\'appartement'
         ),
         'voirConso' => array(
@@ -30,6 +30,23 @@ $actions = array(
             'title'     =>    'Déclarer mettre fin à la location'
         )
     ),
+    'appareils' => array(
+        'changerEtat' => array(
+            'class'     =>    'action fas fa-power-off',
+            'onclick'   =>    'ajaxDateFinFonctionnement(this.closest(\'tr\'));',
+            'title'     =>    'Allumer/éteindre l\'appareil'
+        ),
+        'modifierUser'  => array(
+            'class'     =>    'action fas fa-edit',
+            'onclick'   =>    'redirectModificationAppareil(this.closest(\'tr\'))',
+            'title'     =>    'Modifier les informations de l\'appareil'
+        ),
+        'mettreFin' => array(
+            'class'     =>    'action fas fa-times red',
+            'onclick'   =>    'ajaxDeleteAppareil(this.closest(\'tr\'));',
+            'title'     =>    'Supprimer cet appareil'
+        )
+    ),
     'admin' => array(
         'supprimerUser' => array(
             'class'     =>    'action fas fa-times red',
@@ -39,7 +56,7 @@ $actions = array(
         'modifierUser'  => array(
             'class'     =>    'action fas fa-edit',
             'onclick'   =>    'redirectModificationUtilisateur(this.closest(\'tr\'))',
-            'title'     =>    'Modifier l\'utilisateur'
+            'title'     =>    'Modifier les informations de l\'utilisateur'
         )
     )
 );

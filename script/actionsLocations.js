@@ -1,7 +1,11 @@
-var regex = /^immeuble-([0-9]+)-appartement-([0-9]+)/;
+var regexAppartement = /^immeuble-([0-9]+)-appartement-([0-9]+)/;
+var regexPHP = /^(\?uc=[\w-]+)&action=[\w-]+/;
+
 var divPopUp = $("#divPopUp");
 var titrePopUp = divPopUp.find("#titrePopUp");
 var popUpContent = divPopUp.find(".popup-content");
+
+var searchURL = $(location).attr("search");
 
 
 function ajaxDateFinLocation(appartement) {
@@ -9,7 +13,10 @@ function ajaxDateFinLocation(appartement) {
     var idAppartement = appartement.id;
     var idImmeuble;
 
-    if (regex.test(idAppartement) && (idImmeuble = idAppartement.match(regex)[1]) && (idAppartement = idAppartement.match(regex)[2])) {
+    var resRegex = idAppartement.match(regexAppartement);
+
+
+    if (regexAppartement.test(idAppartement) && (idImmeuble = resRegex[1]) && (idAppartement = resRegex[2])) {
         $.ajax({
             url: 'ajax/setDateFinLocation.php',
             type: 'POST',
@@ -43,10 +50,13 @@ function ajaxDateFinLocation(appartement) {
 
 function ajaxGetTableConsoAppart(appartement) {
 
-    var idAppartement = appartement.id;
+    appartement = appartement.id;
+    var resRegex = appartement.match(regexAppartement);
+
+    var idAppartement;
     var idImmeuble;
 
-    if (regex.test(idAppartement) && (idImmeuble = idAppartement.match(regex)[1]) && (idAppartement = idAppartement.match(regex)[2])) {
+    if (regexAppartement.test(appartement) && (idImmeuble = resRegex[1]) && (idAppartement = resRegex[2])) {
         $.ajax({
             url: 'ajax/getTableConsommationAppart.php',
             type: 'POST',
@@ -72,7 +82,9 @@ function ajaxGetTableAppareilsAppart(appartement) {
     var idAppartement = appartement.id;
     var idImmeuble;
 
-    if (regex.test(idAppartement) && (idImmeuble = idAppartement.match(regex)[1]) && (idAppartement = idAppartement.match(regex)[2])) {
+    var resRegex = idAppartement.match(regexAppartement);
+
+    if (regexAppartement.test(idAppartement) && (idImmeuble = resRegex[1]) && (idAppartement = resRegex[2])) {
         $.ajax({
             url: 'ajax/getTableAppareilsAppartement.php',
             type: 'POST',
@@ -82,6 +94,7 @@ function ajaxGetTableAppareilsAppart(appartement) {
                 openPopUp();
                 titrePopUp.html("Appareils de l'appartement " + idAppartement);
                 popUpContent.html(data);
+                initEventsListeAppareils();
 
             },
             error: function (request, error) {
@@ -93,14 +106,16 @@ function ajaxGetTableAppareilsAppart(appartement) {
 
 
 
-function redirectModificationAppareil(appartement) {
+function redirectAjoutAppareil(appartement) {
 
-    var idAppartement = appartement.id;
+    
+    appartement = appartement.id;
+    var resRegex = appartement.match(regexAppartement);
 
-    var regexPHP = /^(\?uc=[\w-]+)&action=[\w-]+/
-    var searchURL = $(location).attr("search");
+    var idAppartement;
+    var idImmeuble;
 
-    if (regex.test(idAppartement) && (idImmeuble = idAppartement.match(regex)[1]) && (idAppartement = idAppartement.match(regex)[2])) {
+    if (regexAppartement.test(appartement) && (idImmeuble = resRegex[1]) && (idAppartement = resRegex[2])) {
         if (searchURL && searchURL != "") {
             if (regexPHP.test(searchURL)) {
                 var resRegexPHP = searchURL.match(regexPHP);

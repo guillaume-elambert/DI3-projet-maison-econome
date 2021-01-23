@@ -1,9 +1,10 @@
+var regexImmeuble = /^immeuble-([0-9]+)/;
+
 function ajaxDateFinPossession(immeuble) {
-
+    
     var idImmeuble = immeuble.id;
-    var regex = /^immeuble-([0-9]+)/;
-
-    if (regex.test(idImmeuble) && (idImmeuble = idImmeuble.match(regex)[1])) {
+    
+    if (regexImmeuble.test(idImmeuble) && (idImmeuble = idImmeuble.match(regexImmeuble)[1])) {
         $.ajax({
             url: 'ajax/setDateFinPossession.php',
             type: 'POST',
@@ -20,7 +21,7 @@ function ajaxDateFinPossession(immeuble) {
 
                 immeuble.parentNode.removeChild(immeuble);
 
-                if(output['success']) {
+                if (output['success']) {
                     alert(output['success']);
                 } else if (output['erreurs']) {
                     alert(output['erreurs']);

@@ -17,7 +17,7 @@ if (!isset($_SESSION['user'])) {
         case "gerer-utilisateurs":
             $utilisateurs = $pdo->get25Utilisateurs();
 
-            include("util/configActionsTable.inc.php");
+            require_once("util/configActionsTables.inc.php");
             include("vues/v_gestionUtilisateurs.php");
 
             $javascript[] = HOME . 'script/gestionUtilisateurs.js';

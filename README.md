@@ -1,5 +1,5 @@
-Projet BDD 3A
-=============
+Projet BDD 3A <!-- omit in toc -->
+============= 
 
 ## Table des matières
 
@@ -11,10 +11,10 @@ Projet BDD 3A
     - [2.2.1. Template](#221-template)
 - [3. Application](#3-application)
   - [3.1. Script base de données](#31-script-base-de-données)
-  - [3.2. Comptes utilisateurs](#32-comptes-utilisateurs)
-  - [3.3. Etat d'avancement](#33-etat-davancement)
+  - [3.2. Comptes utilisateurs (non exhaustif)](#32-comptes-utilisateurs-non-exhaustif)
+  - [3.3. Villes possédant des rues, immeubles, appartements et pièces (non exhaustif)](#33-villes-possédant-des-rues-immeubles-appartements-et-pièces-non-exhaustif)
+  - [3.4. Etat d'avancement](#34-etat-davancement)
 - [4. Contributeurs](#4-contributeurs)
-
 <br>
 
 ## 1. Introduction
@@ -27,7 +27,7 @@ Application web qui permet de suivre la consommation des citoyens en diverses re
 
 ### 2.1. Connexion à la base de données
 
-Le fichier ["util/config.php"](util/config.php) contient les paramètres fonctionnels de l'application :
+Le fichier [`util/config.php`](util/config.php) contient les paramètres fonctionnels de l'application :
 
 
 
@@ -57,7 +57,7 @@ define( "DB_PORT", "your-mysql-listening-port" );
 
 ### 2.2. Définir les actions utilisateurs
 
-Le fichier ["util/configActionsTable.inc.php"](util/configActionsTable.inc.php) contient un tableau de tableaux qui permet de définir les attributs des actions des utilisateurs :
+Le fichier [`util/configActionsTables.inc.php`](util/configActionsTables.inc.php) contient un tableau de tableaux qui permet de définir les attributs des actions des utilisateurs :
 
 
 
@@ -72,17 +72,23 @@ $actions = array(
         )
     ),
     'locations' => array(
-        'actionIndex3-1' => array(
+        'actionIndex2-1' => array(
             'attribute1'    =>    'something1',
         ),
-        'voirConso' => array(
+        'actionIndex2-2' => array(
             'attribute2'    =>    'whatYouWant',
             'attribute3'    =>    'theValueOfAttribute3',
             'attribute4'    =>    'itCanBeAnythingAndEverything'
         ),
     ),
-    'admin' => array(
+    'appareils' => array(
         'actionIndex3-1' => array(
+            'class'     =>    'fas fa-linux',
+            'title'     =>    'It\'s a cool icon isn\'t it?'
+        )
+    ),
+    'admin' => array(
+        'actionIndex4-1' => array(
             'id'            =>    'myObject',
             'class'         =>    'an-really cool-class',
             'onclick'       =>    'alert("You clicked on object "+$this.id)',
@@ -99,32 +105,73 @@ $actions = array(
 ### 3.1. Script base de données
 
 
-Le fichier ["util/sql/3a_di_projet.sql"](util/sql/3a_di_projet.sql) contient le script de la base de donées avec quelques données pré-insérées.
+Le fichier [`util/sql/3a_di_projet_struct.sql`](util/sql/3a_di_projet_struct.sql) contient le script de la base de donées.
+Le fichier [`util/sql/3a_di_projet_data.sql`](util/sql/3a_di_projet_data.sql) contient un set de données.
 
-### 3.2. Comptes utilisateurs
+### 3.2. Comptes utilisateurs (non exhaustif)
 
 |   Identifiant   | Mot de passe |      Rôle      |
 | :-------------: | :----------: | :------------: |
 | `root@root.fr`  |    `root`    | Administrateur |
 | `root1@root.fr` |    `root`    |  Utilisateur   |
 | `root2@root.fr` |    `root`    |  Utilisateur   |
+| `root3@root.fr` |    `root`    |  Utilisateur   |
+| `root4@root.fr` |    `root`    |  Utilisateur   |
 
+Pour plus de comptes, se référer à la base de données.
+<br/>
 
-### 3.3. Etat d'avancement
+### 3.3. Villes possédant des rues, immeubles, appartements et pièces (non exhaustif)
 
-- [ ] Actions utilisateur
+| idVille |     Nom de la ville      |  CP   |
+| :-----: | :----------------------: | :---: |
+|    1    |           Ozan           | 01190 |
+|    2    |  Cormoranche-sur-Saône   | 0129  |
+|    3    |          Plagne          | 01130 |
+|    4    |         Tossiat          | 01250 |
+|   ...   |           ...            |  ...  |
+|   96    |   Le Petit-Abergement    | 01260 |
+|  36700  | Saint-Pierre-et-Miquelon | 97500 |
+|  25550  |         Pradeaux         | 63500 |
+
+Pour plus de villes, se référer à la base de données.
+<br/>
+<details>
+<summary>Requête SQL</summary>
+
+~~~sql
+SELECT v.*
+FROM ville v
+INNER JOIN rue r
+ON r.idVille = v.idVille
+INNER JOIN immeuble i
+ON i.idRue = r.idRue
+INNER JOIN appartement a
+LEFT JOIN piece p
+ON  a.idImmeuble = p.idImmeuble
+AND a.idAppartement = p.idAppartement
+WHERE idPiece IS NOT NULL
+GROUP BY v.idVille;
+~~~
+
+</details>
+<br/>
+
+### 3.4. Etat d'avancement
+
+- [x] Actions utilisateur
     - [x] Inscription
     - [x] Connexion
     - [x] Modifier les informations
-    - [ ] Gestion Locations
+    - [x] Gestion Locations
         - [x] Ajouter une location
         - [x] Supprimer une location
         - [x] Afficher la consommation de l'appartement
-        - [ ] Appareils
+        - [x] Appareils
           - [x] Afficher la liste des appareils
           - [x] Ajouter des appareils
-          - [ ] Modification des appareils
-          - [ ] Supprimer des appareils
+          - [x] Modification des appareils
+          - [x] Supprimer des appareils
     - [x] Gestion possessions
         - [x] Ajouter une possession
         - [x] Supprimer une possession

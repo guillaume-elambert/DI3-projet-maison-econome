@@ -258,10 +258,10 @@ function creerImage()
 
 
 /**
- * Retourne un tableau d'erreurs de saisie pour la création d'un nouvel utilisateur
+ * Retourne un tableau d'erreurs de saisie pour la création d'un nouvel appareil
  *
  * @param string $libelleAppareil nom de l'appareil
- * @param int $idTypeAppareil Identifiant de l'appareil
+ * @param int $idTypeAppareil Identifiant du type de l'appareil
  * @param int $idPiece Identifiant de la pièce
  * @param string $descriptionPosition description de la position de l'objet dans la pièce
  * @param bool $etat si l'appareil est allumé ou non 
@@ -295,4 +295,57 @@ function getErreursSaisieAjoutAppareil($libelleAppareil, $idTypeAppareil, $idPie
 		$lesErreurs[] = "L'idAppartement est vide";
 	}
 	return $lesErreurs;
+}
+
+
+/**
+ * Retourne un tableau d'erreurs de saisie pour la modification d'un appareil
+ *
+ * @param string $libelleAppareil nom de l'appareil
+ * @param int $idTypeAppareil Identifiant de l'appareil
+ * @param int $idPiece Identifiant de la pièce
+ * @param string $descriptionPosition description de la position de l'objet dans la pièce
+ * @param bool $etat si l'appareil est allumé ou non 
+ * @param int $idImmeuble identifiant de l'immeuble
+ * @param int $idAppartement identifiant de l'appartement
+ * @param int $idAppareil L'identifiant de l'appareil à modififer
+ * @return array $lesErreurs un tableau de chaînes d'erreurs
+ */
+function getErreursSaisieModifAppareil($libelleAppareil, $idTypeAppareil, $idPiece, $descriptionPosition, $etat, $idImmeuble, $idAppartement, $idAppareil)
+{
+	$lesErreurs = getErreursSaisieAjoutAppareil($libelleAppareil, $idTypeAppareil, $idPiece, $descriptionPosition, $etat, $idImmeuble, $idAppartement);
+
+	if ($idAppareil == "") {
+		$lesErreurs[] = "Il faut séléctionner un appareil";
+	}
+
+	return $lesErreurs;
+}
+
+/**
+ * Fonction qui ajoute des pièces pour chaque appartement n'ayant pas de pieces
+ * 
+ * @param PdoProjet3A $pdo Le pdo vers la BDD
+ */
+function insertPiecesAppartSansPiece($pdo)
+{
+
+	$typeAppart = $pdo->getTypesAppartement();
+	$typesPiece = $pdo->getTypesPiece();
+
+
+	$apparts = $pdo->getAppartsSansPiece();
+
+	//Parcours de tous les appartements n'ayant pas de piece
+	foreach ($apparts as $unAppart) {
+		//On récupère le nombre de pièces du type de l'appartement
+		$nbPieces = $typeAppart[$unAppart['idTypeAppart']-1]['nbMinPieces'];
+		
+		//On ajoute autant de piece que le nombre de pièces du type de l'appartement
+		for ($i = 0; $i < $nbPieces; ++$i) {
+			//On récupère un type de pièce aléatoirement
+			$leType = $typesPiece[rand(0, sizeof($typesPiece) - 1)];
+			$pdo->insertPiece($unAppart['idImmeuble'], $unAppart['idAppartement'], $leType['libelleTypePiece'], $leType['idTypePiece']);
+		}
+	}
 }

@@ -30,7 +30,6 @@ if (!isset($_SESSION['user'])) {
 
         case "ajouter-un-appareil":
 
-
             //Entrée : la personne à rempli et valider le formulaire
             if (isset($_POST['immeuble'])) {
 
@@ -45,42 +44,102 @@ if (!isset($_SESSION['user'])) {
 
                 $erreurs = getErreursSaisieAjoutAppareil($libelleAppareil, $idTypeAppareil, $idPiece, $descriptionPosition, $etat, $idImmeuble, $idAppartement);
 
-                if(empty($erreurs)){
+                if (empty($erreurs)) {
                     if ($pdo->checkUserLocationAppartement($_SESSION['user'], $idImmeuble, $idAppartement)) {
-                        if($pdo->insertAppareil($libelleAppareil, $etat, $idImmeuble, $idAppartement, $idPiece, $idTypeAppareil, $descriptionPosition)){
+
+                        //Entrée : l'appareil a bien été enregistré dans la BDD
+                        if ($pdo->insertAppareil($libelleAppareil, $etat, $idImmeuble, $idAppartement, $idPiece, $idTypeAppareil, $descriptionPosition)) {
+
                             $success[] = "Appareil enregistré avec succès";
-                            $redirect = "?uc=$uc&action=$action&immeuble=$idImmeuble&appartement=$idAppartement";
                         } else {
                             $messages[] = "Une erreur s'est produite...";
-                            $redirect = "?uc=$uc&action=$action";
+                        }
+                        $redirect = "?uc=$uc&action=$action&immeuble=$idImmeuble&appartement=$idAppartement";
+                        
+                    } else {
+                        $messages[] = "Vous n'êtes pas locataire de cet appartement...";
+                        $redirect   = HOME . "?uc=$uc&action=mes-locations-possessions";
+                    }
+                } else {
+
+                    $erreurs[] = "Les champs n'ont pas été correctement saisis";
+                    $redirect = "?uc=$uc&action=$action&immeuble=$idImmeuble&appartement=$idAppartement";
+                }
+            } else {
+
+                //Entrée : si l'identifiant de l'appartement et de l'immeuble ont été passés dans l'URL
+                if (isset($_GET['immeuble']) && isset($_GET['appartement'])) {
+
+
+                    $immeuble = $_GET['immeuble'];
+                    $appartement = $_GET['appartement'];
+                    $pieces = $pdo->getPiecesAppart($immeuble, $appartement);
+
+                    include("vues/v_formAppareil.php");
+                    $javascript[] = HOME . 'script/formAppareil.js';
+                } else {
+                    $messages[] = "Vous devez sélectionner l'appartement dans la liste de vos locations";
+                    $redirect   = HOME . "?uc=$uc&action=mes-locations-possessions";
+                }
+            }
+            break;
+
+        case "modifier-appareil":
+
+
+            //Entrée : la personne à rempli et valider le formulaire
+            if (isset($_POST['immeuble'])) {
+
+                $idImmeuble          = $_POST['immeuble'];
+                $idAppartement       = $_POST['appartement'];
+                $idPiece             = $_POST['piece'];
+                $idAppareil          = $_POST['appareil'];
+                $etat                = $_POST['etatAppareil'];
+                $libelleAppareil     = $_POST['nomAppareil'];
+                $idTypeAppareil      = $_POST['typeAppareil'];
+                $descriptionPosition = $_POST['positionPiece'];
+
+
+                $erreurs = getErreursSaisieModifAppareil($libelleAppareil, $idTypeAppareil, $idPiece, $descriptionPosition, $etat, $idImmeuble, $idAppartement, $idAppareil);
+
+                if (empty($erreurs)) {
+                    if ($pdo->checkUserLocationAppartement($_SESSION['user'], $idImmeuble, $idAppartement)) {
+
+                        //Entrée : l'appareil a bien été modifié dans la BDD
+                        if ($pdo->updateAppareil($idImmeuble, $idAppartement, $idPiece, $idAppareil, $libelleAppareil, $etat, $idTypeAppareil, $descriptionPosition)) {
+
+                            $success[] = "Modifications enregistrées avec succès";
+                            $redirect = "?uc=$uc&action=mes-locations-possessions";
+                        } else {
+                            $messages[] = "Une erreur s'est produite...";
+                            $redirect = "?uc=$uc&action=$action&immeuble=$idImmeuble&appartement=$idAppartement&piece=$idPiece&appareil=$idAppareil";
                         }
                     } else {
                         $messages[] = "Vous n'êtes pas locataire de cet appartement...";
                         $redirect   = HOME . "?uc=$uc&action=mes-locations-possessions";
                     }
                 } else {
-                    
-                    $erreurs[] = "Les champs n'ont pas été correctement saisis";
-                    $redirect = "?uc=$uc&action=$action";
 
+                    $erreurs[] = "Les champs n'ont pas été correctement saisis";
+                    $redirect = "?uc=$uc&action=$action&immeuble=$idImmeuble&appartement=$idAppartement&piece=$idPiece&appareil=$idAppareil";
                 }
-                //TRAIMENT DES DONNEES ENVOYEES PAR LE FORMULAIRE
             } else {
 
                 //Entrée : si l'identifiant de l'appartement et de l'immeuble ont été passés dans l'URL
-                if (isset($_GET['immeuble']) && isset($_GET['appartement'])) {
+                if (isset($_GET['immeuble']) && isset($_GET['appartement']) && isset($_GET['piece']) && isset($_GET['appareil'])) {
 
-                    
+
                     $immeuble = $_GET['immeuble'];
                     $appartement = $_GET['appartement'];
-                    $pieces = $pdo->getPieceInfos($immeuble, $appartement);
+                    $piece = $_GET['piece'];
 
-                    include("vues/v_formAjoutAppareil.php");
+                    $appareil = $pdo->getInfosAppareil($immeuble, $appartement, $piece, $_GET['appareil']);
+                    $pieces = $pdo->getPiecesAppart($immeuble, $appartement);
+
+                    include("vues/v_formAppareil.php");
                     $javascript[] = HOME . 'script/formAppareil.js';
-                    
                 } else {
-                    var_dump($_POST);
-                    $messages[] = "Vous devez sélectionner l'appartement dans la liste de vos locations";
+                    $messages[] = "Vous devez sélectionner l'appareil dans la liste des appareils de votre location";
                     $redirect   = HOME . "?uc=$uc&action=mes-locations-possessions";
                 }
             }
@@ -140,10 +199,12 @@ if (!isset($_SESSION['user'])) {
             $immeubles = $pdo->getUserPossession($_SESSION['user']);
             $locations = $pdo->getUserLocInfos($_SESSION['user']);
 
-            include("util/configActionsTable.inc.php");
+            require_once("util/configActionsTables.inc.php");
             include("vues/v_locationsPossessions.php");
             $javascript[] = HOME . 'script/actionsPossessions.js';
             $javascript[] = HOME . 'script/actionsLocations.js';
+            $javascript[] = HOME . 'script/listeAppareils.js';
+            $javascript[] = HOME . 'script/actionsAppareils.js';
             break;
 
 
@@ -176,7 +237,6 @@ if (!isset($_SESSION['user'])) {
                         $erreurs = array_merge($erreurs, $erreursInsertionLocPoss);
                     }
 
-                    $redirect     = "?uc=$uc&action=mes-infos";
 
                     if (strcmp($situationUser, "locataire") == 0) {
                         $msg = "Votre location a bien été enregistrée.";
@@ -184,6 +244,7 @@ if (!isset($_SESSION['user'])) {
                         $msg = "Votre possession a bien été enregistrée.";
                     }
                     $messages[] = $msg;
+                    $redirect   = "?uc=$uc&action=mes-locations-possessions";
                 } else {
                     $setSessionValues = true;
 

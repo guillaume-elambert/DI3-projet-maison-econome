@@ -1,10 +1,18 @@
+var regexMail = /^utilisateur-([\w.-]+@[\w.-]+\.[a-zA-Z]{2,6})/;
+var regexPHP = /^(\?uc=[\w-]+)&action=[\w-]+/;
+var searchURL = $(location).attr("search");
+
 function ajaxSupprimerUtilisateur(utilisateur) {
 
     var mailUtilisateur = utilisateur.id;
-    var regex = /^utilisateur-([\w.-]+@[\w.-]+\.[a-zA-Z]{2,6})/;
+    var resRegex = mailUtilisateur.match(regexMail);
+    
 
-    if (regex.test(mailUtilisateur) && (mailUtilisateur = mailUtilisateur.match(regex)[1])) {
-        
+    //Entrée: le paramètre est bien un mail
+    if (regexMail.test(mailUtilisateur) &&
+        (mailUtilisateur = resRegex[1])
+    ) {
+
         $.ajax({
             url: 'ajax/deleteUtilisateur.php',
             type: 'POST',
@@ -21,7 +29,7 @@ function ajaxSupprimerUtilisateur(utilisateur) {
 
                 utilisateur.parentNode.removeChild(utilisateur);
 
-                if(output['success']) {
+                if (output['success']) {
                     alert(output['success']);
                 } else if (output['erreurs']) {
                     alert(output['erreurs']);
@@ -39,17 +47,23 @@ function ajaxSupprimerUtilisateur(utilisateur) {
 
 function redirectModificationUtilisateur(utilisateur) {
 
-    var mailUtilisateur = utilisateur.id;
-    var regexMail = /^utilisateur-([\w.-]+@[\w.-]+\.[a-zA-Z]{2,6})/;
-    var regexPHP = /^(\?uc=[\w-]+)&action=[\w-]+/
-    var searchURL = $(location).attr("search");
+    utilisateur = utilisateur.id;
+    var resRegexMail = utilisateur.match(regexMail);
 
-    if (regexMail.test(mailUtilisateur) && (mailUtilisateur = mailUtilisateur.match(regexMail)[1])) {
-        if(searchURL && searchURL != ""){
-            if(regexPHP.test(searchURL)){
+    var mailUtilisateur;
+
+    //Entrée: le paramètre est bien un email
+    if (regexMail.test(utilisateur) && (mailUtilisateur = resRegexMail[1])) {
+
+        if (searchURL && searchURL != "") {
+
+            //Entrée: le format de l'URL correspond à ce qui est attendu
+            if (regexPHP.test(searchURL)) {
+
                 var resRegexPHP = searchURL.match(regexPHP);
-                var toRedirect = resRegexPHP[1]+"&action=modifier-utilisateur&user="+mailUtilisateur;
+                var toRedirect = resRegexPHP[1] + "&action=modifier-utilisateur&user=" + mailUtilisateur;
                 $(location).attr("search", toRedirect);
+
             }
         }
     }

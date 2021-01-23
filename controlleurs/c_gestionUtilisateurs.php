@@ -17,7 +17,6 @@ switch ($action) {
 			if (isset($_SESSION['admin'])) {
 				unset($_SESSION['admin']);
 			}
-			var_dump($_SESSION);
 			$redirect	= HOME;
 			$success[]	= "Vous êtes bien déconnecté !";
 		}
