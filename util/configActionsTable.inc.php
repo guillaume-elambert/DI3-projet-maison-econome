@@ -9,8 +9,13 @@ $actions = array(
         )
     ),
     'locations' => array(
+        'voirAppareils' => array(
+            'class'     =>    'action fas fa-laptop-house',
+            'onclick'   =>    'ajaxGetTableAppareilsAppart(this.closest(\'tr\'))',
+            'title'     =>    'Voir les appareils de l\'appartement'
+        ),
         'ajouterAppareil' => array(
-            'class'     =>    'action fas fa-plus', 
+            'class'     =>    'action fas fa-plus',
             'onclick'   =>    'redirectModificationAppareil(this.closest(\'tr\'));',
             'title'     =>    'Ajouter un appareil à l\'appartement'
         ),

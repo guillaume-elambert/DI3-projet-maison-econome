@@ -14,15 +14,4 @@
 </br></br></br>
 <h2> Vos Locations : </h2>
 
-<div id='divLocations'>
-    <?php include("vues/v_tableLocations.php"); ?>
-
-    <div id='divConsommationAppart' class="overlay">
-
-        <div class="popup">
-            <h2 id="titrePopUpConsommation"></h2>
-            <a class="close fa fa-times"></a>
-            <div class="popup-content"></div>
-        </div>
-
-    </div>
+<?php include("vues/v_tableLocations.php"); ?>

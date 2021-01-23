@@ -120,9 +120,11 @@ Le fichier ["util/sql/3a_di_projet.sql"](util/sql/3a_di_projet.sql) contient le 
         - [x] Ajouter une location
         - [x] Supprimer une location
         - [x] Afficher la consommation de l'appartement
-        - [ ] Afficher la liste des appareils
-        - [x] Ajouter des appareils
-        - [ ] Supprimer des appareils
+        - [ ] Appareils
+          - [x] Afficher la liste des appareils
+          - [x] Ajouter des appareils
+          - [ ] Modification des appareils
+          - [ ] Supprimer des appareils
     - [x] Gestion possessions
         - [x] Ajouter une possession
         - [x] Supprimer une possession

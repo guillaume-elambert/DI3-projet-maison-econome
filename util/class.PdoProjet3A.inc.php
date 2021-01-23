@@ -865,7 +865,7 @@ class PdoProjet3A
 	public function getAppareilInfos($immeuble, $appartement)
 	{
 		$res = array();
-		$req = PdoProjet3A::$monPdo->query("SELECT * FROM appareil WHERE idAppartement = $appartement AND idImmeuble=$immeuble");
+		$req = PdoProjet3A::$monPdo->query("SELECT * FROM appareil NATURAL JOIN typeappareil NATURAL JOIN piece WHERE idAppartement = $appartement AND idImmeuble=$immeuble");
 
 		if ($req) {
 			$res = $req->fetchAll();

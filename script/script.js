@@ -39,6 +39,6 @@ $(".close").click(function () {
     $(".overlay").removeClass("active");
 });
 
-$(".overlay").click(function () {
-    $(this).removeClass("active");
+$(".overlay .background").click(function () {
+    $(".overlay").removeClass("active");
 })
