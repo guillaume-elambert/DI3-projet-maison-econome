@@ -26,6 +26,7 @@ define( "DB_PORT", "3308" );
 
 
 //On redirige tous les include vers la racine du projet
-set_include_path(get_include_path() . PATH_SEPARATOR . $_SERVER['DOCUMENT_ROOT']. DIRECTORY_SEPARATOR . FOLDER_NAME. DIRECTORY_SEPARATOR );
+define( "PATH_TO_PROJECT", $_SERVER['DOCUMENT_ROOT']. DIRECTORY_SEPARATOR . FOLDER_NAME. DIRECTORY_SEPARATOR );
+set_include_path(get_include_path() . PATH_SEPARATOR . PATH_TO_PROJECT);
 
 ?>

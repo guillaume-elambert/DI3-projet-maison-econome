@@ -45,8 +45,8 @@ switch ($uc) {
 
 
 	/*case "test":
-		insertPiecesAppartSansPiece($pdo);
-	break;*/
+		//insertPiecesAppartSansPiece($pdo);
+		break;*/
 
 	default:
 		$redirect = HOME;
