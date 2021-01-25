@@ -43,9 +43,9 @@ CREATE TABLE `appareil` (
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `id_relatif_appareil_insert` BEFORE INSERT ON `appareil` FOR EACH ROW BEGIN
     DECLARE maxNbAppareil INT;
@@ -79,6 +79,35 @@ DELIMITER ;;
 		(idImmeuble,  	 idAppartement,  	idPiece,  	 idAppareil, 	 debutFonctionnement) VALUES
 		(new.idImmeuble, new.idAppartement, new.idPiece, new.idAppareil, NOW()				);
     END IF;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `id_relatif_appareil_update` BEFORE UPDATE ON `appareil` FOR EACH ROW BEGIN
+
+  DECLARE maxNbAppareil INT;
+  IF new.idPiece != old.idPiece THEN
+      SELECT MAX(idAppareil) INTO maxNbAppareil FROM appareil WHERE idImmeuble = new.idImmeuble AND idAppartement = new.idAppartement AND idPiece = new.idPiece;
+
+      IF maxNbAppareil IS NULL THEN
+          SET maxNbAppareil := 1;
+      ELSE
+        SET maxNbAppareil := maxNbAppareil + 1;
+      END IF;
+      
+      SET new.idAppareil = maxNbAppareil;
+  END IF;
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -131,32 +160,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `id_relatif_appareil_update` BEFORE UPDATE ON `appareil` FOR EACH ROW BEGIN
-    DECLARE maxNbAppareil INT;
-    SELECT MAX(idAppareil) INTO maxNbAppareil FROM appareil WHERE idImmeuble = new.idImmeuble AND idAppartement = new.idAppartement AND idPiece = new.idPiece;
-
-    IF maxNbAppareil IS NULL THEN
-        SET maxNbAppareil := 1;
-    ELSE
-    	SET maxNbAppareil := maxNbAppareil + 1;
-    END IF;
-    
-    SET new.idAppareil = maxNbAppareil;
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `appartement`
@@ -183,9 +186,9 @@ CREATE TABLE `appartement` (
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `id_relatif_appartement_insert` BEFORE INSERT ON `appartement` FOR EACH ROW BEGIN
     DECLARE maxNbAppart int;
@@ -209,21 +212,23 @@ DELIMITER ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `id_relatif_appartement_update` BEFORE UPDATE ON `appartement` FOR EACH ROW BEGIN
     DECLARE maxNbAppart int;
-    SELECT MAX(idAppartement) INTO maxNbAppart FROM appartement WHERE idImmeuble = new.idImmeuble;
+    IF new.idImmeuble != old.idImmeuble THEN
+      SELECT MAX(idAppartement) INTO maxNbAppart FROM appartement WHERE idImmeuble = new.idImmeuble;
 
-    IF maxNbAppart IS NULL THEN
-        SET maxNbAppart := 1;
-    ELSE
-    	SET maxNbAppart := maxNbAppart + 1;
+      IF maxNbAppart IS NULL THEN
+          SET maxNbAppart := 1;
+      ELSE
+        SET maxNbAppart := maxNbAppart + 1;
+      END IF;
+      
+      SET new.idAppartement = maxNbAppart;
     END IF;
-    
-    SET new.idAppartement = maxNbAppart;
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -397,9 +402,9 @@ CREATE TABLE `piece` (
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `id_relatif_piece_insert` BEFORE INSERT ON `piece` FOR EACH ROW BEGIN
     DECLARE maxNbPiece int;
@@ -423,12 +428,13 @@ DELIMITER ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
 /*!50003 SET character_set_client  = utf8mb4 */ ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_unicode_ci */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `id_relatif_piece_update` BEFORE UPDATE ON `piece` FOR EACH ROW BEGIN
     DECLARE maxNbPiece int;
+    IF new.idAppartement != old.idAppartement THEN
     SELECT MAX(idPiece) INTO maxNbPiece FROM piece WHERE idImmeuble = new.idImmeuble AND idAppartement = new.idAppartement;
 
     IF maxNbPiece IS NULL THEN
@@ -438,6 +444,7 @@ DELIMITER ;;
     END IF;
     
     SET new.idPiece = maxNbPiece;
+    END IF;
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -665,4 +672,4 @@ CREATE TABLE `ville` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-24 21:03:17
+-- Dump completed on 2021-01-25 17:13:31

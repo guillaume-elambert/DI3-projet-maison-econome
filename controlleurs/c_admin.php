@@ -170,7 +170,7 @@ if (!isset($_SESSION['user'])) {
             break;
 
         case "get-struct-bdd":
-            $fileName =  DB_NAME . "_struc.sql";
+            $fileName =  DB_NAME . "_struct.sql";
             $filePath = "util/sql/$fileName";
 
             //execute the command and output the result

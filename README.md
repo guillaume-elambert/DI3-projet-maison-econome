@@ -1,4 +1,4 @@
-Projet BDD 3A <!-- omit in toc -->
+Projet BDD 3A
 ============= 
 
 ## Table des matières
@@ -10,7 +10,7 @@ Projet BDD 3A <!-- omit in toc -->
   - [2.2. Définir les actions utilisateurs](#22-définir-les-actions-utilisateurs)
     - [2.2.1. Template](#221-template)
 - [3. Application](#3-application)
-  - [3.1. Script base de données](#31-script-base-de-données)
+  - [3.1. Scripts de la base de données](#31-scripts-de-la-base-de-données)
   - [3.2. Comptes utilisateurs (non exhaustif)](#32-comptes-utilisateurs-non-exhaustif)
   - [3.3. Villes possédant des rues, immeubles, appartements et pièces (non exhaustif)](#33-villes-possédant-des-rues-immeubles-appartements-et-pièces-non-exhaustif)
   - [3.4. Etat d'avancement](#34-etat-davancement)
@@ -19,7 +19,7 @@ Projet BDD 3A <!-- omit in toc -->
 
 ## 1. Introduction
 
-Application web qui permet de suivre la consommation des citoyens en diverses ressources (Ex: Electricité, gaz, eau,...etc) et l’´emission de substances nocives pour l’environnement (Ex: CO2).
+Application web qui permet de suivre la consommation des citoyens en diverses ressources (Ex: Electricité, gaz, eau,...etc) et l’émission de substances nocives pour l’environnement (Ex: CO2).
 
 <br>
 
@@ -27,7 +27,8 @@ Application web qui permet de suivre la consommation des citoyens en diverses re
 
 ### 2.1. Connexion à la base de données
 
-Le fichier [`util/config.php`](util/config.php) contient les paramètres fonctionnels de l'application :
+Le fichier [`util/config.php`](util/config.php) contient les paramètres fonctionnels de l'application.
+L'utilisateur par défaut de la base de données ainsi que son mot de passe sont renseignés dans le fichier [`util/sql/di_3a_projet_full.sql`](util/sql/di_3a_projet_full.sql), pensez à le modifier si vous souhaitez utiliser un autre utilisateur.
 
 
 
@@ -102,11 +103,11 @@ $actions = array(
 
 ## 3. Application
 
-### 3.1. Script base de données
+### 3.1. Scripts de la base de données
 
-
-Le fichier [`util/sql/3a_di_projet_struct.sql`](util/sql/3a_di_projet_struct.sql) contient le script de la base de donées.
-Le fichier [`util/sql/3a_di_projet_data.sql`](util/sql/3a_di_projet_data.sql) contient un set de données.
+Le fichier [`util/sql/di_3a_projet_full.sql`](util/sql/di_3a_projet_full.sql) contient le script de de la base de données (structure + données + utilisateur).
+Le fichier [`util/sql/di_3a_projet_struct.sql`](util/sql/di_3a_projet_struct.sql) contient le script de création de la structure de la BDD. Il peut être généré/mit à jour par un compte administrateur via le dashboard.
+Le fichier [`util/sql/di_3a_projet_data.sql`](util/sql/di_3a_projet_data.sql) contient un set de données. Il peut être généré/mit à jour par un compte administrateur via le dashboard.
 
 ### 3.2. Comptes utilisateurs (non exhaustif)
 
@@ -138,6 +139,8 @@ Pour plus de villes, se référer à la base de données.
 <br/>
 <details>
 <summary>Requête SQL</summary>
+
+Executer cette requête vous renverra la liste des villes qui possèdent des rues, des immeubles, des appartements et des pièces.
 
 ~~~sql
 SELECT v.*

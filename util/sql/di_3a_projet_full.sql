@@ -1,9 +1,17 @@
+DROP DATABASE IF EXISTS `di_3a_projet`;
+CREATE DATABASE IF NOT EXISTS `di_3a_projet` CHARACTER SET utf8 COLLATE utf8_bin;
+USE `di_3a_projet`;
+
+CREATE USER IF NOT EXISTS `projet_bdd_3a`@`%` IDENTIFIED BY 'OTdWAeC4qiLaNmzT';
+GRANT ALL PRIVILEGES ON `di_3a_projet`.* TO `projet_bdd_3a`@`%`;
+
+
 -- phpMyAdmin SQL Dump
 -- version 5.0.1
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3308
--- Généré le : Dim 24 jan. 2021 à 21:02
+-- Généré le : lun. 25 jan. 2021 à 17:08
 -- Version du serveur :  10.4.11-MariaDB
 -- Version de PHP : 7.3.14
 
@@ -73,16 +81,19 @@ $$
 DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `id_relatif_appareil_update` BEFORE UPDATE ON `appareil` FOR EACH ROW BEGIN
-    DECLARE maxNbAppareil INT;
-    SELECT MAX(idAppareil) INTO maxNbAppareil FROM appareil WHERE idImmeuble = new.idImmeuble AND idAppartement = new.idAppartement AND idPiece = new.idPiece;
 
-    IF maxNbAppareil IS NULL THEN
-        SET maxNbAppareil := 1;
-    ELSE
-    	SET maxNbAppareil := maxNbAppareil + 1;
-    END IF;
-    
-    SET new.idAppareil = maxNbAppareil;
+  DECLARE maxNbAppareil INT;
+  IF new.idPiece != old.idPiece THEN
+      SELECT MAX(idAppareil) INTO maxNbAppareil FROM appareil WHERE idImmeuble = new.idImmeuble AND idAppartement = new.idAppartement AND idPiece = new.idPiece;
+
+      IF maxNbAppareil IS NULL THEN
+          SET maxNbAppareil := 1;
+      ELSE
+        SET maxNbAppareil := maxNbAppareil + 1;
+      END IF;
+      
+      SET new.idAppareil = maxNbAppareil;
+  END IF;
 END
 $$
 DELIMITER ;
@@ -3000,15 +3011,17 @@ DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `id_relatif_appartement_update` BEFORE UPDATE ON `appartement` FOR EACH ROW BEGIN
     DECLARE maxNbAppart int;
-    SELECT MAX(idAppartement) INTO maxNbAppart FROM appartement WHERE idImmeuble = new.idImmeuble;
+    IF new.idImmeuble != old.idImmeuble THEN
+      SELECT MAX(idAppartement) INTO maxNbAppart FROM appartement WHERE idImmeuble = new.idImmeuble;
 
-    IF maxNbAppart IS NULL THEN
-        SET maxNbAppart := 1;
-    ELSE
-    	SET maxNbAppart := maxNbAppart + 1;
+      IF maxNbAppart IS NULL THEN
+          SET maxNbAppart := 1;
+      ELSE
+        SET maxNbAppart := maxNbAppart + 1;
+      END IF;
+      
+      SET new.idAppartement = maxNbAppart;
     END IF;
-    
-    SET new.idAppartement = maxNbAppart;
 END
 $$
 DELIMITER ;
@@ -11289,6 +11302,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `id_relatif_piece_update` BEFORE UPDATE ON `piece` FOR EACH ROW BEGIN
     DECLARE maxNbPiece int;
+    IF new.idAppartement != old.idAppartement THEN
     SELECT MAX(idPiece) INTO maxNbPiece FROM piece WHERE idImmeuble = new.idImmeuble AND idAppartement = new.idAppartement;
 
     IF maxNbPiece IS NULL THEN
@@ -11298,6 +11312,7 @@ CREATE TRIGGER `id_relatif_piece_update` BEFORE UPDATE ON `piece` FOR EACH ROW B
     END IF;
     
     SET new.idPiece = maxNbPiece;
+    END IF;
 END
 $$
 DELIMITER ;
